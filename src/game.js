@@ -1,10 +1,12 @@
 import { Ship } from "./ship";
-import { Point } from "./util";
+import { Point, piecewiseRandom } from "./util";
 import { Bullet } from "./bullet";
+import { Asteroid } from "./asteroid";
 
 const PADDING = 50,
       KEY_INTERVAL = 10,
-      BULLET_COOLOFF = 500    // milliseconds
+      BULLET_COOLOFF = 500,    // milliseconds
+      SPAWN_DISTANCE = 120
 
 export class Game {
     constructor(canvas) {
@@ -72,7 +74,22 @@ export class Game {
     }
 
     initAsteroids() {
+        this.asteroids = [];
+        for (let i = 0; i < 2; i++) {
+            this.spawnAsteroid();
+        }
+    }
 
+    spawnAsteroid() {
+        var location = this.ship.cp;
+        while(this.ship.cp.distance(location) < SPAWN_DISTANCE) {
+            var x = piecewiseRandom([0, PADDING], [PADDING + this.canvas.width, 2 * PADDING + this.canvas.width]);
+            var y = piecewiseRandom([0, PADDING], [PADDING + this.canvas.height, 2 * PADDING + this.canvas.height]);
+
+            location = this.convertfromDrawCoords(new Point(x, y));
+        }
+
+        this.asteroids.push(new Asteroid(this.canvas.width + 2 * PADDING, this.canvas.height + 2 * PADDING, location, 2));
     }
 
     update(self) {
@@ -82,6 +99,9 @@ export class Game {
         self.bullets.forEach(bullet => {
             bullet.update();
         });
+        self.asteroids.forEach(asteroid => {
+            asteroid.update();
+        })
         self.draw();
     }
 
@@ -93,15 +113,35 @@ export class Game {
     }
 
     drawShip() {
+        this.drawVertexObject(this.ship);
+    }
+
+    drawBullets() {
+        this.bullets = this.bullets.filter(bullet => bullet.isActive());
+        this.bullets.forEach(bullet => {
+            var bulletLocation = this.convertToDrawCoords(bullet.cp);
+
+            this.ctx.beginPath();
+            this.ctx.arc(bulletLocation.x, bulletLocation.y, bullet.radius, 0, Math.PI * 2, true);
+            this.ctx.fill();
+        }, this);
+    }
+
+    drawAsteroids() {
+        for(var i = 0; i < this.asteroids.length; i++) {
+            this.drawVertexObject(this.asteroids[i]);
+        }
+    }
+
+    drawVertexObject(obj) {
         this.ctx.save();
 
-        var shipLocation = this.convertToDrawCoords([this.ship.cp])[0];
-        this.ctx.translate(...shipLocation.toArray());
-        this.ctx.rotate(-this.ship.theta);  // canvas rotation axis is negative object local one
-        this.ctx.translate(...shipLocation.mul(-1).toArray());
+        var globalLocation = this.convertToDrawCoords(obj.cp);
+        this.ctx.translate(...globalLocation.toArray());
+        this.ctx.rotate(-obj.theta);  // canvas rotation axis is negative object local one
+        this.ctx.translate(...globalLocation.mul(-1).toArray());
 
-        var vertices = this.convertToDrawCoords(this.ship.getVertices());
-        // debugger;
+        var vertices = obj.getVertices().map((p) => { return this.convertToDrawCoords(p); }, this);
         this.ctx.beginPath();
         this.ctx.moveTo(...vertices[0].toArray());
         for (let i = 1; i < vertices.length; i++) {
@@ -111,23 +151,6 @@ export class Game {
         this.ctx.stroke();
 
         this.ctx.restore();
-    }
-
-    drawBullets() {
-        var self = this;
-
-        this.bullets = this.bullets.filter(bullet => bullet.isActive());
-        this.bullets.forEach(bullet => {
-            var bulletLocation = self.convertToDrawCoords([bullet.cp])[0];
-
-            self.ctx.beginPath();
-            self.ctx.arc(bulletLocation.x, bulletLocation.y, bullet.radius, 0, Math.PI * 2, true);
-            self.ctx.fill();
-        });
-    }
-
-    drawAsteroids() {
-
     }
 
     checkGameOver() {
@@ -140,14 +163,14 @@ export class Game {
 
     fireBullet(self) {
         self.bullets.push(new Bullet(self.canvas.width, self.canvas.height, self.ship.getFront(), self.ship.theta));
-        this.bulletFiredTime = new Date();
+        self.bulletFiredTime = new Date();
     }
 
-    convertToDrawCoords(points) {
-        var self = this;
+    convertToDrawCoords(p) {
+        return new Point(p.x + this.canvas.width / 2, this.canvas.height / 2 - p.y);
+    }
 
-        return points.map((point) => {
-            return new Point(point.x + self.canvas.width / 2, self.canvas.height / 2 - point.y);
-        });
+    convertfromDrawCoords(p) {
+        return new Point(p.x - this.canvas.width / 2, this.canvas.height / 2 - p.y);
     }
 }

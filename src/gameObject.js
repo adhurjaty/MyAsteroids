@@ -1,4 +1,4 @@
-import { Point } from "./util";
+import { Point, addAngles } from "./util";
 
 export class GameObject {
     constructor(width, height) {
@@ -8,12 +8,16 @@ export class GameObject {
         this.cp = new Point(0, 0);  // center default object at middle (draw will do the canvas coords correction)
         this.dp = new Point(0, 0);
         this.theta = 0;
+        this.dTheta = 0;
 
         this.ticks = 0;
     }
 
     update() {
         this.cp = this.cp.add(this.dp);
+
+        this.theta = addAngles(this.theta, this.dTheta);
+
         this.wrapSpace();
         this.ticks++;
     }
@@ -28,5 +32,4 @@ export class GameObject {
         if(this.cp.y < -this.height / 2)
             this.cp.y = this.height / 2;
     }
-
 }

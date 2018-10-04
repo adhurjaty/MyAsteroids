@@ -1,10 +1,10 @@
-import { Point } from "./util";
+import { Point, addAngles } from "./util";
 import { GameObject } from "./gameObject";
 
 const SHIP_WIDTH = 30,
       SHIP_LENGTH = 50,
-      D_THETA = .05,
-      ACCEL = .03,
+      TURN_SPEED = .05,
+      ACCEL = .05,
       MAX_SPEED = 5;
 
 export class Ship extends GameObject {
@@ -29,13 +29,9 @@ export class Ship extends GameObject {
 
     rotate(dir) {
         if(dir) {
-            this.theta += D_THETA;
-            this.theta %= Math.PI * 2;
+            this.theta = addAngles(this.theta, TURN_SPEED);
         } else {
-            this.theta -= D_THETA;
-            if(this.theta < 0) {
-                this.theta += Math.PI * 2;
-            }
+            this.theta = addAngles(this.theta, -TURN_SPEED);
         }
     }
 

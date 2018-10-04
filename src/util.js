@@ -40,3 +40,19 @@ export class Point {
         return new Point(mag * Math.cos(theta), mag * Math.sin(theta));
     }
 }
+
+export function addAngles(theta, phi) {
+    theta += phi;
+    theta %= 2 * Math.PI;
+    if(theta < 0) {
+        theta += 2 * Math.PI;
+    }
+
+    return theta;
+}
+
+export function piecewiseRandom() {
+    var idx = Math.floor(Math.random() * arguments.length);
+    var range = arguments[idx];
+    return Math.random() * (range[1] - range[0]) + range[0];
+}
