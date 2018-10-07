@@ -5,26 +5,32 @@ import { Asteroid } from "./asteroid";
 
 const PADDING = 50,
       KEY_INTERVAL = 10,
-      BULLET_COOLOFF = 500,    // milliseconds
-      SPAWN_DISTANCE = 120
+      BULLET_COOLOFF = 300,    // milliseconds
+      SPAWN_DISTANCE = 120,
+      ASTEROID_SPAWN_TIME = 10000;
 
 export class Game {
     constructor(canvas) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
 
+        this.initGame();
+    }
+
+    initGame() {
         this.keyHandle = {};
 
         this.initShip();
         this.initAsteroids();
         this.bullets = [];
         this.bulletFiredTime = new Date();
+        this.gameOver = false;
     }
 
     start() {
         document.addEventListener("keydown", (e) => this.keyDownHandler(this, e), false);
         document.addEventListener("keyup", (e) => this.keyUpHandler(this, e), false);
-        setInterval(() => { this.update(this); }, 10);
+        this.updateHandle = setInterval(() => { this.update(this); }, 10);
     }
 
     keyDownHandler(self, e) {
@@ -33,6 +39,10 @@ export class Game {
             case 32:    // space bar
                 if(new Date() - this.bulletFiredTime > BULLET_COOLOFF) {
                     self.fireBullet(self);
+                }
+                if(this.gameOver) {
+                    this.initGame();
+                    this.updateHandle = setInterval(() => { this.update(this); }, 10);
                 }
                 break;
 
@@ -76,32 +86,38 @@ export class Game {
     initAsteroids() {
         this.asteroids = [];
         for (let i = 0; i < 2; i++) {
-            this.spawnAsteroid();
+            this.spawnAsteroid(this);
         }
+
+        setInterval(() => { this.spawnAsteroid(this); }, ASTEROID_SPAWN_TIME);
     }
 
-    spawnAsteroid() {
-        var location = this.ship.cp;
-        while(this.ship.cp.distance(location) < SPAWN_DISTANCE) {
-            var x = piecewiseRandom([0, PADDING], [PADDING + this.canvas.width, 2 * PADDING + this.canvas.width]);
-            var y = piecewiseRandom([0, PADDING], [PADDING + this.canvas.height, 2 * PADDING + this.canvas.height]);
+    spawnAsteroid(self) {
+        var location = self.ship.cp;
+        while(self.ship.cp.distance(location) < SPAWN_DISTANCE) {
+            var x = piecewiseRandom([0, PADDING], [PADDING + self.canvas.width, 2 * PADDING + self.canvas.width]);
+            var y = piecewiseRandom([0, PADDING], [PADDING + self.canvas.height, 2 * PADDING + self.canvas.height]);
 
-            location = this.convertfromDrawCoords(new Point(x, y));
+            location = self.convertfromDrawCoords(new Point(x, y));
         }
 
-        this.asteroids.push(new Asteroid(this.canvas.width + 2 * PADDING, this.canvas.height + 2 * PADDING, location, 2));
+        self.asteroids.push(new Asteroid(self.canvas.width + 2 * PADDING, self.canvas.height + 2 * PADDING, location, 2));
     }
 
     update(self) {
-        self.checkGameOver();
-        self.checkAsteroidHit();
         self.ship.update();
         self.bullets.forEach(bullet => {
             bullet.update();
         });
         self.asteroids.forEach(asteroid => {
             asteroid.update();
-        })
+        });
+
+        self.handleBulletCollisions();
+        if(self.checkGameOver()) {
+            self.endGame();
+        }
+        
         self.draw();
     }
 
@@ -141,7 +157,7 @@ export class Game {
         this.ctx.rotate(-obj.theta);  // canvas rotation axis is negative object local one
         this.ctx.translate(...globalLocation.mul(-1).toArray());
 
-        var vertices = obj.getVertices().map((p) => { return this.convertToDrawCoords(p); }, this);
+        var vertices = this.getObjVertices(obj);
         this.ctx.beginPath();
         this.ctx.moveTo(...vertices[0].toArray());
         for (let i = 1; i < vertices.length; i++) {
@@ -153,12 +169,71 @@ export class Game {
         this.ctx.restore();
     }
 
+    getObjVertices(obj) {
+        return obj.getVertices().map((p) => { return this.convertToDrawCoords(p); }, this);
+    }
+
     checkGameOver() {
+        var shipVertices = this.ship.getVertices();
+        for(var i = 0; i < this.asteroids.length; i++) {
+            for(var j = 0; j < shipVertices.length; j++) {
+                if(shipVertices[j].distance(this.asteroids[i].cp) < this.asteroids[i].radius) {
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 
+    endGame() {
+        var self = this;
+        this.gameOver = true;
+        clearInterval(this.updateHandle);
+        setTimeout(() => self.showGameOver(), 50);
+    }
+
+    showGameOver() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.font = '48px arial';
+        this.ctx.fillText('GAME OVER', this.canvas.width / 2 - 150, this.canvas.height / 2 - 10);
+    }
+
+    handleBulletCollisions() {
+        var bulletAsteroidIdx = this.checkAsteroidHit();
+        if(bulletAsteroidIdx != null) {
+            var bulletIdx = bulletAsteroidIdx[0];
+            var asteroidIdx = bulletAsteroidIdx[1];
+            this.splitAsteroid(asteroidIdx);
+            this.removeBullet(bulletIdx);
+        }
+    }
+
     checkAsteroidHit() {
-        return false;
+        for(var i = 0; i < this.bullets.length; i++) {
+            for(var j = 0; j < this.asteroids.length; j++) {
+                if(this.bullets[i].cp.distance(this.asteroids[j].cp) < this.bullets[i].radius + this.asteroids[j].radius) {
+                    return [i, j];
+                }
+            }
+        }
+
+        return null;
+    }
+
+    splitAsteroid(idx) {
+        var asteroid = this.asteroids[idx];
+        this.asteroids.splice(idx, 1);
+        var newSize = asteroid.size - 1;
+        if(newSize >= 0) {
+            for(var i = 0; i < 2; i++) {
+                this.asteroids.push(new Asteroid(this.canvas.width + 2 * PADDING, this.canvas.height + 2 * PADDING, asteroid.cp, newSize));
+            }
+        }
+    }
+
+    removeBullet(idx) {
+        this.bullets.splice(idx, 1);
     }
 
     fireBullet(self) {
@@ -172,5 +247,9 @@ export class Game {
 
     convertfromDrawCoords(p) {
         return new Point(p.x - this.canvas.width / 2, this.canvas.height / 2 - p.y);
+    }
+
+    detectShipCollision() {
+
     }
 }

@@ -10,6 +10,7 @@ export class Asteroid extends GameObject {
         super(width, height);
 
         this.cp = location;
+        this.size = size;
 
         this.radius = SIZE_LOOKUP[size];
         this.sides = Math.floor(7 + 5 * Math.random());
