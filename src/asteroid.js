@@ -6,8 +6,8 @@ const SIZE_LOOKUP = [15, 25, 40],
       MIN_SPEED = .3;
 
 export class Asteroid extends GameObject {
-    constructor(width, height, location, size) {
-        super(width, height);
+    constructor(location, size) {
+        super();
 
         this.cp = location;
         this.size = size;

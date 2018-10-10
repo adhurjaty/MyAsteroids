@@ -32,8 +32,19 @@ export class Point {
         return this.mul(factor / this.magnitude());
     }
 
+    rotate(theta) {
+        return new Point(Math.cos(theta) * this.x - Math.sin(theta) * this.y,
+                         Math.sin(theta) * this.x + Math.cos(theta) * this.y);
+    }
+
     toArray() {
         return [this.x, this.y];
+    }
+
+    toPolar() {
+        var r = Math.sqrt(this.x ** 2 + this.y ** 2);
+        var theta = Math.atan2(this.y, this.x);
+        return [r, theta];
     }
 
     static fromPolar(mag, theta) {

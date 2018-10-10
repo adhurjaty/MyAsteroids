@@ -2,6 +2,7 @@ import { Ship } from "./ship";
 import { Point, piecewiseRandom } from "./util";
 import { Bullet } from "./bullet";
 import { Asteroid } from "./asteroid";
+import { GameObject } from "./gameObject";
 
 const PADDING = 50,
       GAME_RATE_INTERVAL = 10,
@@ -16,6 +17,9 @@ export class Game {
     constructor(canvas) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
+        this.totalWidth = this.canvas.width + 2 * PADDING;
+        this.totalHeight = this.canvas.height + 2 * PADDING;
+        GameObject.setDimensions(this.totalWidth, this.totalHeight);
 
         this.initGame();
     }
@@ -95,7 +99,7 @@ export class Game {
     }
 
     initShip() {
-        this.ship = new Ship(this.canvas.width + 2 * PADDING, this.canvas.height + 2 * PADDING);
+        this.ship = new Ship();
     }
 
     initAsteroids() {
@@ -108,13 +112,13 @@ export class Game {
     spawnAsteroid(self) {
         var location = self.ship.cp;
         while(self.ship.cp.distance(location) < SPAWN_DISTANCE) {
-            var x = piecewiseRandom([0, PADDING], [PADDING + self.canvas.width, 2 * PADDING + self.canvas.width]);
-            var y = piecewiseRandom([0, PADDING], [PADDING + self.canvas.height, 2 * PADDING + self.canvas.height]);
+            var x = piecewiseRandom([0, PADDING], [self.totalWidth - PADDING, self.totalWidth]);
+            var y = piecewiseRandom([0, PADDING], [self.totalHeight - PADDING, self.totalHeight]);
 
             location = self.convertfromDrawCoords(new Point(x, y));
         }
 
-        self.asteroids.push(new Asteroid(self.canvas.width + 2 * PADDING, self.canvas.height + 2 * PADDING, location, 2));
+        self.asteroids.push(new Asteroid(location, 2));
     }
 
     getState() {
@@ -123,12 +127,15 @@ export class Game {
                 return {
                     position: asteroid.cp,
                     velocity: asteroid.dp,
-                    size: asteroid.size
+                    radius: asteroid.radius
                 }
             })),
             position: this.ship.cp,
             velocity: this.ship.dp,
-            orientation: this.ship.theta
+            orientation: this.ship.theta,
+            width: this.totalWidth,
+            height: this.totalHeight,
+            score: this.score
         };
     }
 
@@ -277,7 +284,7 @@ export class Game {
         var newSize = asteroid.size - 1;
         if(newSize >= 0) {
             for(var i = 0; i < 2; i++) {
-                this.asteroids.push(new Asteroid(this.canvas.width + 2 * PADDING, this.canvas.height + 2 * PADDING, asteroid.cp, newSize));
+                this.asteroids.push(new Asteroid(asteroid.cp, newSize));
             }
         }
     }
@@ -287,7 +294,7 @@ export class Game {
     }
 
     fireBullet(self) {
-        self.bullets.push(new Bullet(self.canvas.width, self.canvas.height, self.ship.getFront(), self.ship.theta));
+        self.bullets.push(new Bullet(self.ship.getFront(), self.ship.theta));
         self.bulletFiredTime = this.counter;
     }
 

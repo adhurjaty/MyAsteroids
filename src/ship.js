@@ -8,8 +8,8 @@ const SHIP_WIDTH = 30,
       MAX_SPEED = 5;
 
 export class Ship extends GameObject {
-    constructor(width, height) {
-        super(width, height)
+    constructor() {
+        super()
 
         this.theta = Math.PI / 2; // pointing up (radians)
     }

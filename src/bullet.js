@@ -6,8 +6,8 @@ const LIFETIME = 35,
       SPEED = 20
 
 export class Bullet extends GameObject {
-    constructor(width, height, point, theta) {
-        super(width, height);
+    constructor(point, theta) {
+        super();
 
         this.theta = theta;
         this.cp = point;
