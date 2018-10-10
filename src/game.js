@@ -4,10 +4,13 @@ import { Bullet } from "./bullet";
 import { Asteroid } from "./asteroid";
 
 const PADDING = 50,
-      KEY_INTERVAL = 10,
-      BULLET_COOLOFF = 300,    // milliseconds
+      GAME_RATE_INTERVAL = 10,
+      BULLET_COOLOFF = 150,    // milliseconds
       SPAWN_DISTANCE = 120,
-      ASTEROID_SPAWN_TIME = 10000;
+      ASTEROID_SPAWN_TIME = 5000,
+      ASTEROID_HIT_SCORE = [5, 3, 1],
+      MOVE_ENUM = Object.freeze({'UP': 0, 'DOWN': 1, 'LEFT': 2, 'RIGHT': 3, 'FIRE': 4}),
+      KEY_TO_MOVE_MAP = Object.freeze({32: MOVE_ENUM.FIRE, 37: MOVE_ENUM.LEFT, 38: MOVE_ENUM.UP, 39: MOVE_ENUM.RIGHT, 40: MOVE_ENUM.DOWN});
 
 export class Game {
     constructor(canvas) {
@@ -18,64 +21,76 @@ export class Game {
     }
 
     initGame() {
-        this.keyHandle = {};
+        this.actionHandle = {};
 
         this.initShip();
         this.initAsteroids();
         this.bullets = [];
-        this.bulletFiredTime = new Date();
+        this.bulletFiredTime = 0;
+        this.lastAsteroidSpawnTime = 0;
         this.gameOver = false;
+        this.score = 0;
+        this.counter = 0;
     }
 
     start() {
         document.addEventListener("keydown", (e) => this.keyDownHandler(this, e), false);
         document.addEventListener("keyup", (e) => this.keyUpHandler(this, e), false);
-        this.updateHandle = setInterval(() => { this.update(this); }, 10);
+        this.updateHandle = setInterval(() => { this.update(this); }, GAME_RATE_INTERVAL);
     }
 
     keyDownHandler(self, e) {
-        var keyFnc = null;
-        switch(e.keyCode) {
-            case 32:    // space bar
-                if(new Date() - this.bulletFiredTime > BULLET_COOLOFF) {
-                    self.fireBullet(self);
-                }
-                if(this.gameOver) {
-                    this.initGame();
-                    this.updateHandle = setInterval(() => { this.update(this); }, 10);
-                }
-                break;
-
-            case 37:    // left arrow
-                keyFnc = () => self.ship.rotate(true);
-                break;
-            
-            case 38:    // up arrow
-                keyFnc = () => self.ship.thrust(true);
-                break;
-            
-            case 39:    // right arrow
-                keyFnc = () => self.ship.rotate(false);
-                break;
-
-            case 40:    // down arrow
-                keyFnc = () => self.ship.thrust(false);
-                break;
-        }
-
-        if(keyFnc != null)
-        {
-            if(e.keyCode in this.keyHandle) {
-                clearInterval(this.keyHandle[e.keyCode]);
-            }
-            self.keyHandle[e.keyCode] = setInterval(keyFnc, KEY_INTERVAL);
+        if(self.gameOver && KEY_TO_MOVE_MAP[e.keyCode] == MOVE_ENUM.FIRE) {
+            self.initGame();
+            self.updateHandle = setInterval(() => { self.update(self); }, GAME_RATE_INTERVAL);
+        } else if(e.keyCode in KEY_TO_MOVE_MAP) {
+            self.inputAction(KEY_TO_MOVE_MAP[e.keyCode]);
         }
     }
 
     keyUpHandler(self, e) {
-        if(e.keyCode in this.keyHandle) {
-            clearInterval(this.keyHandle[e.keyCode]);
-            delete(this.keyHandle[e.keyCode]);
+        var action = KEY_TO_MOVE_MAP[e.keyCode];
+        if(action != null) {
+            self.stopAction(action);
+        }
+    }
+
+    inputAction(action) {
+        var actionFnc = null;
+        var self = this;
+        switch(action) {
+            case MOVE_ENUM.FIRE:
+                if(this.counter > this.bulletFiredTime + (BULLET_COOLOFF / GAME_RATE_INTERVAL)) {
+                    self.fireBullet(self);
+                }
+                break;
+
+            case MOVE_ENUM.LEFT:
+                actionFnc = () => self.ship.rotate(true);
+                break;
+            
+            case MOVE_ENUM.UP:
+                actionFnc = () => self.ship.thrust(true);
+                break;
+            
+            case MOVE_ENUM.RIGHT:
+                actionFnc = () => self.ship.rotate(false);
+                break;
+
+            case MOVE_ENUM.DOWN:
+                actionFnc = () => self.ship.thrust(false);
+                break;
+        }
+
+        if(actionFnc != null)
+        {
+            this.actionHandle[action] = actionFnc;
+        }
+    }
+
+    stopAction(action) {
+        if(action in this.actionHandle) {
+            delete(this.actionHandle[action]);
         }
     }
 
@@ -88,8 +103,6 @@ export class Game {
         for (let i = 0; i < 2; i++) {
             this.spawnAsteroid(this);
         }
-
-        setInterval(() => { this.spawnAsteroid(this); }, ASTEROID_SPAWN_TIME);
     }
 
     spawnAsteroid(self) {
@@ -104,7 +117,30 @@ export class Game {
         self.asteroids.push(new Asteroid(self.canvas.width + 2 * PADDING, self.canvas.height + 2 * PADDING, location, 2));
     }
 
+    getState() {
+        return {
+            asteroids: this.asteroids.map((asteroid => {
+                return {
+                    position: asteroid.cp,
+                    velocity: asteroid.dp,
+                    size: asteroid.size
+                }
+            })),
+            position: this.ship.cp,
+            velocity: this.ship.dp,
+            orientation: this.ship.theta
+        };
+    }
+
     update(self) {
+        self.counter++;
+        if(self.counter >= self.lastAsteroidSpawnTime + ASTEROID_SPAWN_TIME / GAME_RATE_INTERVAL) {
+            self.spawnAsteroid(self);
+            self.lastAsteroidSpawnTime = self.counter;
+        }
+
+        self.continueActions();
+
         self.ship.update();
         self.bullets.forEach(bullet => {
             bullet.update();
@@ -114,11 +150,18 @@ export class Game {
         });
 
         self.handleBulletCollisions();
+        
+        self.draw();
+        
         if(self.checkGameOver()) {
             self.endGame();
         }
-        
-        self.draw();
+    }
+
+    continueActions() {
+        for(var action in this.actionHandle) {
+            this.actionHandle[action]();
+        }
     }
 
     draw() {
@@ -126,6 +169,7 @@ export class Game {
         this.drawShip();
         this.drawBullets();
         this.drawAsteroids();
+        this.drawScore();
     }
 
     drawShip() {
@@ -167,6 +211,11 @@ export class Game {
         this.ctx.stroke();
 
         this.ctx.restore();
+    }
+
+    drawScore() {
+        this.ctx.font = '18px arial';
+        this.ctx.fillText(`Score: ${this.score}`, this.canvas.width - 100, 20);
     }
 
     getObjVertices(obj) {
@@ -223,6 +272,7 @@ export class Game {
 
     splitAsteroid(idx) {
         var asteroid = this.asteroids[idx];
+        this.score += ASTEROID_HIT_SCORE[asteroid.size];
         this.asteroids.splice(idx, 1);
         var newSize = asteroid.size - 1;
         if(newSize >= 0) {
@@ -238,7 +288,7 @@ export class Game {
 
     fireBullet(self) {
         self.bullets.push(new Bullet(self.canvas.width, self.canvas.height, self.ship.getFront(), self.ship.theta));
-        self.bulletFiredTime = new Date();
+        self.bulletFiredTime = this.counter;
     }
 
     convertToDrawCoords(p) {
@@ -247,9 +297,5 @@ export class Game {
 
     convertfromDrawCoords(p) {
         return new Point(p.x - this.canvas.width / 2, this.canvas.height / 2 - p.y);
-    }
-
-    detectShipCollision() {
-
     }
 }
