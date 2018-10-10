@@ -1,17 +1,16 @@
 import { Point } from "./util";
-import { POINT_CONVERSION_COMPRESSED } from "constants";
 import { GameObject } from "./gameObject";
 
 const SHOT_DISTANCE = 300;  // approximate distance a bullet can travel, so no point looking further
 
-export class InputVector {
+export class VectorCalculator {
     constructor(gameState) {
         this.gameState = gameState;
         this.vector = Array(33).fill(0);
-        this.initVector();
+        this.fillVector();
     }
 
-    initVector() {
+    fillVector() {
         var asteroids = this.shiftWorld(this.gameState.asteroids);
         var inRangeAsteroids = this.getAsteroidsInRange(asteroids);
         if(inRangeAsteroids.length > 0) {
@@ -22,17 +21,15 @@ export class InputVector {
                     var modifiedPos = asteroid.position.rotate(-rotation);
                     if(Math.abs(modifiedPos.y) <= asteroid.radius) {
                         var distance = modifiedPos.x - Math.sqrt(asteroid.radius ** 2 - modifiedPos.y ** 2);
-                        if(distance < this.vector[i]) {
-                            this.vector[i] = distance;
-                            this.vector[i+1] = -asteroid.velocity.rotate(-rotation).x;
+                        if(1/distance > this.vector[i]) {
+                            this.vector[i] = 1/distance;
+                            this.vector[i+1] = -modifiedPos.normalize().dot(asteroid.velocity.rotate(-rotation));
                         }
                     }
                 }
             }
         }
     }
-
-    
 
     shiftWorld(asteroids) {
         var shipPos = this.gameState.position;

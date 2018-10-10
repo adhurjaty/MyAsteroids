@@ -1,4 +1,5 @@
 import { Game } from "./game";
+import { VectorCalculator } from "./vectorCalculator";
 
 const ACTION_INTERVAL = 10; // number of timesteps to skip per new AI decision
 
@@ -28,6 +29,8 @@ export class AiPlayer {
     }
 
     calculateMoves(state) {
+        var vecCalc = new VectorCalculator(state);
+        var vector = vecCalc.getVector();
 
     }
 }

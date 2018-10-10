@@ -37,6 +37,10 @@ export class Point {
                          Math.sin(theta) * this.x + Math.cos(theta) * this.y);
     }
 
+    dot(other) {
+        return this.x * other.x + this.y * other.y;
+    }
+
     toArray() {
         return [this.x, this.y];
     }
