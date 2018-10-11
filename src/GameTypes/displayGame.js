@@ -18,7 +18,7 @@ export class DisplayGame extends Game {
         super.update();
         this.draw();
 
-        if(this.checkGameOver()) {
+        if(this.gameOver) {
             this.endGame();
         }
     }
@@ -90,7 +90,6 @@ export class DisplayGame extends Game {
 
     endGame() {
         var self = this;
-        this.gameOver = true;
         clearInterval(this.updateHandle);
         setTimeout(() => self.showGameOver(), 50);
     }

@@ -137,8 +137,10 @@ export class Game {
         this.asteroids.forEach(asteroid => {
             asteroid.update();
         });
-
+        
         this.handleBulletCollisions();
+
+        this.checkAndSetGameOver();
     }
 
     continueActions() {
@@ -147,17 +149,15 @@ export class Game {
         }
     }
 
-    checkGameOver() {
+    checkAndSetGameOver() {
         var shipVertices = this.ship.getVertices();
         for(var i = 0; i < this.asteroids.length; i++) {
             for(var j = 0; j < shipVertices.length; j++) {
                 if(shipVertices[j].distance(this.asteroids[i].cp) < this.asteroids[i].radius) {
-                    return true;
+                    this.gameOver = true;
                 }
             }
         }
-
-        return false;
     }
 
     handleBulletCollisions() {
