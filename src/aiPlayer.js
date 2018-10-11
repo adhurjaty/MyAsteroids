@@ -1,16 +1,17 @@
-import { Game } from "./game";
 import { VectorCalculator } from "./vectorCalculator";
+import { Genome } from "./genome";
 
 const ACTION_INTERVAL = 10; // number of timesteps to skip per new AI decision
 
 export class AiPlayer {
     constructor(game) {
         this.game = game;
+        this.brain = new Genome();
     }
 
     start() {
         var counter = -1;
-        while(true) {
+        while(!this.game.checkGameOver()) {
             this.game.update(this.game);
             counter++;
             if(counter >= ACTION_INTERVAL) {

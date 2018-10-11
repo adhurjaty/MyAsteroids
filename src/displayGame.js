@@ -5,12 +5,11 @@ const GAME_RATE_INTERVAL = 10,
       KEY_TO_MOVE_MAP = Object.freeze({32: MOVE_ENUM.FIRE, 37: MOVE_ENUM.LEFT, 38: MOVE_ENUM.UP, 39: MOVE_ENUM.RIGHT, 40: MOVE_ENUM.DOWN});
 
 
-export class DisplayGame {
+export class DisplayGame extends Game {
     constructor(canvas) {
+        super(canvas.width, canvas.height);
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
-
-        this.game = new Game(canvas.width, canvas.height);
     }
 
     start() {
@@ -20,26 +19,26 @@ export class DisplayGame {
     }
 
     keyDownHandler(self, e) {
-        if(self.game.gameOver && KEY_TO_MOVE_MAP[e.keyCode] == MOVE_ENUM.FIRE) {
-            self.game.initGame();
+        if(self.gameOver && KEY_TO_MOVE_MAP[e.keyCode] == MOVE_ENUM.FIRE) {
+            self.initGame();
             self.updateHandle = setInterval(() => { self.update(self); }, GAME_RATE_INTERVAL);
         } else if(e.keyCode in KEY_TO_MOVE_MAP) {
-            self.game.inputAction(KEY_TO_MOVE_MAP[e.keyCode]);
+            self.inputAction(KEY_TO_MOVE_MAP[e.keyCode]);
         }
     }
 
     keyUpHandler(self, e) {
         var action = KEY_TO_MOVE_MAP[e.keyCode];
         if(action != null) {
-            self.game.stopAction(action);
+            self.stopAction(action);
         }
     }
 
     update() {
-        this.game.update();
+        super.update();
         this.draw();
 
-        if(this.game.checkGameOver()) {
+        if(this.checkGameOver()) {
             this.endGame();
         }
     }
@@ -53,11 +52,11 @@ export class DisplayGame {
     }
 
     drawShip() {
-        this.drawVertexObject(this.game.ship);
+        this.drawVertexObject(this.ship);
     }
 
     drawBullets() {
-        this.game.bullets.forEach(bullet => {
+        this.bullets.forEach(bullet => {
             var bulletLocation = this.convertToDrawCoords(bullet.cp);
 
             this.ctx.beginPath();
@@ -67,8 +66,8 @@ export class DisplayGame {
     }
 
     drawAsteroids() {
-        for(var i = 0; i < this.game.asteroids.length; i++) {
-            this.drawVertexObject(this.game.asteroids[i]);
+        for(var i = 0; i < this.asteroids.length; i++) {
+            this.drawVertexObject(this.asteroids[i]);
         }
     }
 
@@ -94,7 +93,7 @@ export class DisplayGame {
 
     drawScore() {
         this.ctx.font = '18px arial';
-        this.ctx.fillText(`Score: ${this.game.score}`, this.canvas.width - 100, 20);
+        this.ctx.fillText(`Score: ${this.score}`, this.canvas.width - 100, 20);
     }
 
     getObjVertices(obj) {
@@ -111,7 +110,7 @@ export class DisplayGame {
 
     endGame() {
         var self = this;
-        this.game.gameOver = true;
+        this.gameOver = true;
         clearInterval(this.updateHandle);
         setTimeout(() => self.showGameOver(), 50);
     }
