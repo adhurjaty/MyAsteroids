@@ -5,18 +5,18 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon --exec babel-node server.js  --ignore client"
+    "start": "nodemon --exec babel-node server.js --ignore client"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@babel/cli": "^7.1.2",
-    "@babel/core": "^7.1.2",
-    "@babel/preset-env": "^7.1.0",
-    "babel-core": "^7.0.0-bridge.0",
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
     "babel-eslint": "^10.0.1",
-    "babel-loader": "^8.0.2",
+    "babel-loader": "^7.1.5",
+    "babel-preset-env": "^1.7.0",
     "css-loader": "^1.0.0",
+    "eslint": "^5.6.1",
     "style-loader": "^0.23.0",
     "webpack-dev-middleware": "^3.4.0"
   },
