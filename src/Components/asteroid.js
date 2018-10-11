@@ -1,5 +1,5 @@
 import { GameObject } from "./gameObject";
-import { Point } from "./util";
+import { Point } from "./../util";
 
 const SIZE_LOOKUP = [15, 25, 40],
       MAX_SPEEDS = [3.2, 2, 1],

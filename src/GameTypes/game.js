@@ -1,8 +1,8 @@
-import { Ship } from "./ship";
-import { Point, piecewiseRandom } from "./util";
-import { Bullet } from "./bullet";
-import { Asteroid } from "./asteroid";
-import { GameObject } from "./gameObject";
+import { Ship } from "../Components/ship";
+import { Point, piecewiseRandom } from "../util";
+import { Bullet } from "../Components/bullet";
+import { Asteroid } from "../Components/asteroid";
+import { GameObject } from "../Components/gameObject";
 
 const PADDING = 50,
       BULLET_COOLOFF = 15,    // game tick intervals
@@ -14,7 +14,6 @@ export const MOVE_ENUM = Object.freeze({'UP': 0, 'DOWN': 1, 'LEFT': 2, 'RIGHT': 
 
 export class Game {
     constructor(width, height) {
-        debugger;
         this.totalWidth = width + 2 * PADDING;
         this.totalHeight = height + 2 * PADDING;
         GameObject.setDimensions(this.totalWidth, this.totalHeight);

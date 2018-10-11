@@ -1,4 +1,4 @@
-import { HumanGame } from './humanGame.js';
+import { HumanGame } from './GameTypes/humanGame.js';
 
 var canvasWidth = 1000;
 var canvasHeight = 700;

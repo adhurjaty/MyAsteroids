@@ -1,11 +1,10 @@
 import { Game } from "./game";
-import { Point } from "./util";
+import { Point } from "../util";
 
 const GAME_RATE_INTERVAL = 10;
 
 export class DisplayGame extends Game {
     constructor(canvas) {
-        debugger;
         super(canvas.width, canvas.height);
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');

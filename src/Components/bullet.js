@@ -1,5 +1,5 @@
 import { GameObject } from "./gameObject";
-import { Point } from "./util";
+import { Point } from "./../util";
 
 const LIFETIME = 35,
       RADIUS = 3,

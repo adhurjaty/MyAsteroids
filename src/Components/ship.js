@@ -1,4 +1,4 @@
-import { Point, addAngles } from "./util";
+import { Point, addAngles } from "./../util";
 import { GameObject } from "./gameObject";
 
 const SHIP_WIDTH = 30,

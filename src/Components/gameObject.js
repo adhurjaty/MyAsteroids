@@ -1,4 +1,4 @@
-import { Point, addAngles } from "./util";
+import { Point, addAngles } from "./../util";
 
 export class GameObject {
     static setDimensions(width, height) {
