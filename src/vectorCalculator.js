@@ -29,6 +29,8 @@ export class VectorCalculator {
                 }
             }
         }
+
+        this.vector[this.vector.length - 1] = this.gameState.canShoot && this.vector[0] > 0 ? 1 : 0;
     }
 
     shiftWorld(asteroids) {

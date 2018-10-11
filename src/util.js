@@ -16,6 +16,10 @@ export class Point {
         return this.add(other.mul(-1));
     }
 
+    negative() {
+        return new Point(0, 0).sub(this);
+    }
+
     mul(mag) {
         return new Point(this.x * mag, this.y * mag);
     }
