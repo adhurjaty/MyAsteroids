@@ -1,37 +1,18 @@
-import { Game, MOVE_ENUM } from "./game";
+import { Game } from "./game";
 import { Point } from "./util";
 
-const GAME_RATE_INTERVAL = 10,
-      KEY_TO_MOVE_MAP = Object.freeze({32: MOVE_ENUM.FIRE, 37: MOVE_ENUM.LEFT, 38: MOVE_ENUM.UP, 39: MOVE_ENUM.RIGHT, 40: MOVE_ENUM.DOWN});
-
+const GAME_RATE_INTERVAL = 10;
 
 export class DisplayGame extends Game {
     constructor(canvas) {
+        debugger;
         super(canvas.width, canvas.height);
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
     }
 
     start() {
-        document.addEventListener("keydown", (e) => this.keyDownHandler(this, e), false);
-        document.addEventListener("keyup", (e) => this.keyUpHandler(this, e), false);
         this.updateHandle = setInterval(() => { this.update(); }, GAME_RATE_INTERVAL);
-    }
-
-    keyDownHandler(self, e) {
-        if(self.gameOver && KEY_TO_MOVE_MAP[e.keyCode] == MOVE_ENUM.FIRE) {
-            self.initGame();
-            self.updateHandle = setInterval(() => { self.update(self); }, GAME_RATE_INTERVAL);
-        } else if(e.keyCode in KEY_TO_MOVE_MAP) {
-            self.inputAction(KEY_TO_MOVE_MAP[e.keyCode]);
-        }
-    }
-
-    keyUpHandler(self, e) {
-        var action = KEY_TO_MOVE_MAP[e.keyCode];
-        if(action != null) {
-            self.stopAction(action);
-        }
     }
 
     update() {

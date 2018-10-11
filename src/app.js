@@ -1,5 +1,4 @@
-import { Game } from './game.js';
-import { DisplayGame } from './displayGame.js';
+import { HumanGame } from './humanGame.js';
 
 var canvasWidth = 1000;
 var canvasHeight = 700;
@@ -15,7 +14,7 @@ window.onload = () => {
         context.fillStyle = 'rgb(255, 255, 255)';
         context.strokeStyle = 'rgb(255, 255, 255)';
 
-        var game = new DisplayGame(canvas);
+        var game = new HumanGame(canvas);
         game.start();
     }
 }

@@ -14,6 +14,7 @@ export const MOVE_ENUM = Object.freeze({'UP': 0, 'DOWN': 1, 'LEFT': 2, 'RIGHT': 
 
 export class Game {
     constructor(width, height) {
+        debugger;
         this.totalWidth = width + 2 * PADDING;
         this.totalHeight = height + 2 * PADDING;
         GameObject.setDimensions(this.totalWidth, this.totalHeight);
