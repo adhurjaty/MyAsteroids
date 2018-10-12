@@ -75,3 +75,30 @@ export function piecewiseRandom() {
     var range = arguments[idx];
     return Math.random() * (range[1] - range[0]) + range[0];
 }
+
+export function randomGaussian()
+{
+	var val, u, v, s, mul;
+
+    do {
+        u = Math.random()*2-1;
+        v = Math.random()*2-1;
+
+        s = u*u+v*v;
+    } while(s === 0 || s >= 1);
+
+    mul = Math.sqrt(-2 * Math.log(s) / s);
+
+    val = u * mul;
+
+	return val / 14;	// 7 standard deviations on either side
+}
+
+export function boundValue(val, upperLimit, lowerLimit) {
+    return Math.max(lowerLimit, Math.min(upperLimit, val));
+}
+
+// end is not inclusive
+export function randomInt(start, end) {
+    return Math.floor((end - start) * Math.random() + start);
+}

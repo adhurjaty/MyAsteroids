@@ -1,6 +1,8 @@
 import { Gene } from "./gene";
 import { SigmoidGene } from "./sigmoidGene";
 import { ConnectionGene } from "./connectionGene";
+import { randomInt } from "../util";
+import { Population } from "./population";
 
 export class Genome {
     constructor(inputs, outputs) {
@@ -13,8 +15,9 @@ export class Genome {
         this.outputGenes = Array(outputs).fill().map((g, i) => new SigmoidGene(inputs + i));
         this.biasGene = new Gene(inputs + outputs);
         this.biasGene.value = 1;
+        this.biasGene.id = inputs + outputs;
+        this.nextGeneId = inputs + outputs + 1;
         this.hiddenLayers = [];
-
     }
 
     initHistory() {
@@ -31,6 +34,7 @@ export class Genome {
     }
 
     generateNetwork() {
+        this.clearAllGenes();
         this.geneHistory.filter((gh) => gh.enabled).forEach((gh) => {
             gh.inGene.addConnection({gene: gh.outGene, weight: gh.weight});
         });
@@ -70,5 +74,100 @@ export class Genome {
 
     getAllGenes() {
         return this.inputGenes.concat(this.outputGenes).concat(...this.hiddenLayers);
+    }
+
+    mutate() {
+        var rand = Math.random();
+
+        if(rand < .8) {
+            this.mutateWeight();
+        }
+        
+        rand = Math.random();
+        if(rand < .05) {
+            this.addConnection();
+        }
+
+        rand = Math.random();
+        if(rand < .03) {
+            this.addNewGene();
+        }
+    }
+
+    mutateWeight() {
+        this.geneHistory.forEach(cg => {
+            cg.mutateWeight();
+        });
+    }
+
+    addConnection() {
+        if(this.fullyConnected()) {
+            return;
+        }
+
+        var conn = this.findValidConnection();
+        if(conn != null) {
+            var connGene = new ConnectionGene(conn[0], conn[1], 2 * Math.random() - 1, -1);
+            Population.setInnovationNumber(connGene);
+            this.geneHistory.push(connGene);
+        }
+    }
+
+    findValidConnection() {
+        var layers = 2 + this.hiddenLayers.length;
+        var tries = 0;
+        while(tries < 100) {     // give up after some number of tries
+            var inLayerIdx = randomInt(0, layers - 1);
+            var outLayerIdx = randomInt(inLayerIdx + 1, layers);
+            var inGeneIdx = randomInt(0, this.getLayer[inLayerIdx].length);
+            var outGeneIdx = randomInt(0, this.getLayer[outLayerIdx].length);
+            var inGene = this.getLayer(inLayerIdx)[inGeneIdx];
+            var outGene = this.getLayer(outLayerIdx)[outGeneIdx];
+            if(!this.isConnected(inGene, outGene)) {
+                return [inGene, outGene];
+            }
+        }
+
+        return null;
+    }
+
+    getLayer(idx) {
+        return [this.inputGenes].concat(this.hiddenLayers).concat([this.outputGenes])[idx];
+    }
+
+    isConnected(inGene, outGene) {
+        for(var i = 0; i < this.geneHistory.length; i++) {
+            var cg = this.geneHistory[i];
+            if(cg.inGene.id == inGene.id && cg.outGene.id == outGene.id) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    addNewGene() {
+        var connGene = this.getRandomConnGene();
+        connGene.disable();
+
+        var gene = new SigmoidGene(this.nextGeneId);
+        this.nextGeneId++;
+
+        var conn1 = new ConnectionGene(connGene.inGene, gene, 1, -1);
+        Population.setInnovationNumber(conn1);
+
+        var conn2 = new ConnectionGene(gene, connGene.outGene, connGene.weight);
+        Population.setInnovationNumber(conn2);
+
+        this.geneHistory = this.geneHistory.concat([conn1, conn2]);
+    }
+
+    getRandomConnGene() {
+        while(true) {
+            var connGene = this.geneHistory[randomInt(0, this.geneHistory.length)];
+            if(connGene.inGene.id != this.biasGene.id) {
+                return connGene;
+            }
+        }
     }
 }

@@ -2,8 +2,8 @@ import { VectorCalculator } from "../vectorCalculator";
 import { Genome } from "./genome";
 import { MOVE_ENUM } from "../GameTypes/game"
 
-const INPUT_NEURONS = 33,
-      OUTPUT_NEURONS = 5;
+export const INPUT_NEURONS = 33,
+             OUTPUT_NEURONS = 5;
 
 export class Player {
     constructor() {

@@ -1,3 +1,5 @@
+import { randomGaussian, boundValue } from "../util";
+
 export class ConnectionGene {
     constructor(inGene, outGene, weight, innovationNumber) {
         this.inGene = inGene;
@@ -18,5 +20,15 @@ export class ConnectionGene {
 
     applyWeight() {
         this.outGene.addValue(this.weight * this.inGene.value);
+    }
+
+    mutateWeight() {
+        var rand = Math.random();
+        if(rand < .1) {
+            this.weight = 2 * Math.random() - 1;
+        } else {
+            this.weight += randomGaussian() / 50;
+            this.weight = boundValue(this.weight, 1, -1);
+        }
     }
 }
