@@ -52,7 +52,6 @@ export class Population {
     }
 
     runGeneration() {
-        debugger;
         for(var i = 0; i < this.species.length; i++) {
             for(var j = 0; j < this.species[i].players.length; j++) {
                 var player = this.species[i].players[j];

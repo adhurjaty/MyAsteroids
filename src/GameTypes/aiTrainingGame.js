@@ -30,9 +30,9 @@ export class AiTrainingGame extends Game {
 
         for(var action in moves) {
             if(moves[action] > ACTION_THRESHOLD) {
-                this.inputAction(action);
+                this.inputAction(parseInt(action));
             } else {
-                this.stopAction(action);
+                this.stopAction(parseInt(action));
             }
         }
     }

@@ -5,6 +5,7 @@ import { MOVE_ENUM } from "../GameTypes/game"
 export const INPUT_NEURONS = 33,
              OUTPUT_NEURONS = 5,
              ACTION_THRESHOLD = .7;
+const MOVE_ARR = [MOVE_ENUM.UP, MOVE_ENUM.DOWN, MOVE_ENUM.LEFT, MOVE_ENUM.RIGHT, MOVE_ENUM.FIRE];
 
 export class Player {
     constructor() {
@@ -17,11 +18,11 @@ export class Player {
         var vector = vecCalc.getVector();
         var results = this.brain.feedForward(vector);
         debugger;
-        return results.map((r, i) => {
-            var obj = {};
-            obj[MOVE_ENUM[i]] = r;
-            return obj;
-        })
+        var moveObj = {};
+        results.forEach((r, i) => {
+            moveObj[MOVE_ARR[i]] = r;
+        });
+        return moveObj;
     }
 
     setFitness(fitness) {

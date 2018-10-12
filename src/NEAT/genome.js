@@ -8,6 +8,7 @@ export class Genome {
     constructor(inputs, outputs) {
         this.initGenes(inputs, outputs);
         this.initHistory();
+        this.generateNetwork();
     }
 
     initGenes(inputs, outputs) {
@@ -36,7 +37,7 @@ export class Genome {
     generateNetwork() {
         this.clearAllGenes();
         this.geneHistory.filter((gh) => gh.enabled).forEach((gh) => {
-            gh.inGene.addConnection({gene: gh.outGene, weight: gh.weight});
+            gh.inGene.addConnection(gh.outGene, gh.weight);
         });
     }
 
