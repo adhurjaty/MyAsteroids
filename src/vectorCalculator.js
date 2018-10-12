@@ -1,5 +1,5 @@
 import { Point } from "./util";
-import { GameObject } from "./gameObject";
+import { GameObject } from "./Components/gameObject";
 
 const SHOT_DISTANCE = 300;  // approximate distance a bullet can travel, so no point looking further
 

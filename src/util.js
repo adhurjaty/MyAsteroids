@@ -102,3 +102,15 @@ export function boundValue(val, upperLimit, lowerLimit) {
 export function randomInt(start, end) {
     return Math.floor((end - start) * Math.random() + start);
 }
+
+export function arrayMax(arr, fn) {
+    var max = -Infinity;
+    for(var i = 0; i < arr.length; i++) {
+        var val = fn(arr[i]);
+        if(val > max) {
+            max = val;
+        }
+    }
+
+    return max;
+}
