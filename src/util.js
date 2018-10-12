@@ -105,12 +105,14 @@ export function randomInt(start, end) {
 
 export function arrayMax(arr, fn) {
     var max = -Infinity;
+    var maxEl = null
     for(var i = 0; i < arr.length; i++) {
         var val = fn(arr[i]);
         if(val > max) {
             max = val;
+            maxEl = arr[i];
         }
     }
 
-    return max;
+    return maxEl;
 }

@@ -97,6 +97,6 @@ export class Population {
     }
 
     getBestPlayer() {
-        return arrayMax(this.getAllPlayersBySpecies(), (pbs) => pbs.player.fitness);
+        return arrayMax(this.getAllPlayersBySpecies(), (pbs) => pbs.player.fitness).player;
     }
 }

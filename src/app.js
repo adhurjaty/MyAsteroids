@@ -20,14 +20,16 @@ window.onload = () => {
         // var game = new HumanGame(canvas);
         // game.start();
 
-        var player = new Player();
-        var game = new AiDisplayGame(canvas, player);
-        game.start();
-        // var pop = new Population(100);
-        // pop.train(100);
-        // var player = pop.getBestPlayer();
-
+        // var player = new Player();
         // var game = new AiDisplayGame(canvas, player);
         // game.start();
+        
+        var pop = new Population(100);
+        pop.train(100);
+        var player = pop.getBestPlayer();
+
+        debugger;
+        var game = new AiDisplayGame(canvas, player);
+        game.start();
     }
 }

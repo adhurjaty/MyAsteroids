@@ -114,6 +114,25 @@ export class Genome {
         }
     }
 
+    fullyConnected() {
+        var layers = this.getAllLayers();
+        for(var i = 0; i < layers.length - 1; i++) {
+            var fromLayer = layers[i];
+            var remainingGenes = layers.slice(i + 1, layers.length).reduce((sum, layer) => {
+                return sum + layer.length;
+            }, 0);
+            for(var j = 0; j < fromLayer.length; j++) {
+                var fromGene = fromLayer[j];
+                if(fromGene.connections.length < remainingGenes) {
+                    debugger;
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     findValidConnection() {
         var layers = 2 + this.hiddenLayers.length;
         var tries = 0;
@@ -133,7 +152,11 @@ export class Genome {
     }
 
     getLayer(idx) {
-        return [this.inputGenes].concat(this.hiddenLayers).concat([this.outputGenes])[idx];
+        return this.getAllLayers()[idx];
+    }
+
+    getAllLayers() {
+        return [this.inputGenes].concat(this.hiddenLayers).concat([this.outputGenes]);
     }
 
     isConnected(inGene, outGene) {

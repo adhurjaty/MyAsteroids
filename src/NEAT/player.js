@@ -17,7 +17,6 @@ export class Player {
         var vecCalc = new VectorCalculator(state);
         var vector = vecCalc.getVector();
         var results = this.brain.feedForward(vector);
-        debugger;
         var moveObj = {};
         results.forEach((r, i) => {
             moveObj[MOVE_ARR[i]] = r;

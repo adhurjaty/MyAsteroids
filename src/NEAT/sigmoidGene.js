@@ -14,8 +14,4 @@ export class SigmoidGene extends Gene {
         return 1 / (1 + Math.pow(Math.E, -4.9 * x));
     }
 
-    // babel having issues resolving this
-    addValue(val) {
-        super.addValue(val);
-    }
 }
