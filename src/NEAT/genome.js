@@ -93,6 +93,8 @@ export class Genome {
         if(rand < .03) {
             this.addNewGene();
         }
+
+        this.generateNetwork();
     }
 
     mutateWeight() {
@@ -124,7 +126,6 @@ export class Genome {
             for(var j = 0; j < fromLayer.length; j++) {
                 var fromGene = fromLayer[j];
                 if(fromGene.connections.length < remainingGenes) {
-                    debugger;
                     return false;
                 }
             }
@@ -139,8 +140,8 @@ export class Genome {
         while(tries < 100) {     // give up after some number of tries
             var inLayerIdx = randomInt(0, layers - 1);
             var outLayerIdx = randomInt(inLayerIdx + 1, layers);
-            var inGeneIdx = randomInt(0, this.getLayer[inLayerIdx].length);
-            var outGeneIdx = randomInt(0, this.getLayer[outLayerIdx].length);
+            var inGeneIdx = randomInt(0, this.getLayer(inLayerIdx).length);
+            var outGeneIdx = randomInt(0, this.getLayer(outLayerIdx).length);
             var inGene = this.getLayer(inLayerIdx)[inGeneIdx];
             var outGene = this.getLayer(outLayerIdx)[outGeneIdx];
             if(!this.isConnected(inGene, outGene)) {
@@ -243,7 +244,22 @@ export class Genome {
     }
 
     crossover(otherGenome) {
+        var edm = this.getExcessDisjointMatching(otherGenome);
+        var newGeneHistory = edm.matching.map((m) => {
+            if(Math.random() < .5) {
+                return m.original;
+            }
+            return m.other;
+        });
 
+        newGeneHistory = newGeneHistory.concat(edm.disjoint)
+                                       .concat(edm.otherDisjoint)
+                                       .concat(edm.excess)
+                                       .concat(edm.otherExcess);
+        newGeneHistory.sort((a, b) => a.innovationNumber - b.innovationNumber);
+        var newGenome = this.clone();
+        newGenome.geneHistory = newGeneHistory;
+        return newGenome;
     }
 
     clone() {

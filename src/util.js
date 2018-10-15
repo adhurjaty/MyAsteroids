@@ -116,3 +116,15 @@ export function arrayMax(arr, fn) {
 
     return maxEl;
 }
+
+export function shuffle(arr) {
+    var fromArr = arr.slice(0);
+    var shuffled = [];
+    for(var i = 0; i < arr.length; i++) {
+        var idx = randomInt(0, fromArr.length);
+        shuffled.push(fromArr[idx]);
+        fromArr.splice(idx, 1);
+    }
+
+    return shuffled;
+}

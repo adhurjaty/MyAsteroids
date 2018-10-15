@@ -38,9 +38,17 @@ export class Population {
     }
 
     constructor(num) {
-        var players = Array(num).fill(new Player());
-        this.species = [new Species(players)];
-        this.initGlobalInnoHistory(players[0].brain);
+        this.size = num;
+        this.initPlayers();
+        this.species = [new Species(this.players)];
+        this.initGlobalInnoHistory(this.players[0].brain);
+    }
+
+    initPlayers() {
+        this.players = [];
+        for(var i = 0; i < this.size; i++) {
+            this.players.push(new Player());
+        }
     }
 
     initGlobalInnoHistory(genome) {
@@ -49,6 +57,7 @@ export class Population {
 
     train(generations) {
         for(var i = 0; i < generations; i++) {
+            debugger;
             this.runGeneration();
         }
     }
@@ -65,15 +74,19 @@ export class Population {
 
     updatePopulation() {
         this.writeSpeciesResults();
+        this.sortSpecies();
         this.greatDying();
         this.reproduce();
-        this.speciate();
     }
 
     writeSpeciesResults() {
         for(var i = 0; i < this.species.length; i++) {
             this.species[i].updateResults();
         }
+    }
+
+    sortSpecies() {
+        this.species.sort((a, b) => b.bestPlayer.fitness - a.bestPlayer.fitness);
     }
 
     greatDying() {
@@ -92,29 +105,46 @@ export class Population {
     }
 
     cullSpecies() {
-        for(var i = 0; i < this.species.length; i++) {
-            this.species.cull();
-        }
-    }
-
-    getAllPlayersBySpecies() {
-        return this.species.map((spec) => {
-            return spec.players.map((player) => {
-                return { species: spec, player: player };
-            });
-        }).flat();
+        this.species.forEach(s => s.cull());
     }
 
     reproduce() {
-        this.species.forEach((spec) => spec.reproduce());
-    }
-
-    speciate() {
-        this.species.forEach(s => {
-            s.clear();
+        var self = this;
+        var avgFitnessSum = this.getAvgFitnessSum();
+        var newSpeciesPlayers = [];
+        this.species.forEach((spec) => {
+            var avgFitness = spec.getAvgFitness();
+            var specPopSize = Math.floor(self.size * avgFitness / avgFitnessSum);
+            newSpeciesPlayers = newSpeciesPlayers.concat(self.reproduceSpecies(spec, specPopSize - spec.players.length));
         });
 
-        var players = this.getAllPlayers();
+        var curPop = this.getAllPlayers().length;
+        var bestSpecies = this.species[0];
+        newSpeciesPlayers = newSpeciesPlayers.concat(this.reproduceSpecies(bestSpecies, this.size - curPop))
+
+        this.speciate(newSpeciesPlayers);
+    }
+
+    getAvgFitnessSum() {
+        return this.species.reduce((sum, s) => {
+            return sum + s.getAvgFitness();
+        }, 0);
+    }
+
+    reproduceSpecies(spec, num) {
+        var newSpeciesPlayers = [];
+        for(var i = 0; i < num.length; i++) {
+            var newSpeciesPlayer = spec.reproduce();
+            if(newSpeciesPlayer != null) {
+                newSpeciesPlayers.push(newSpeciesPlayer);
+                debugger;
+            }
+        }
+
+        return newSpeciesPlayers;
+    }
+
+    speciate(players) {
         for(var i = 0; i < players.length; i++) {
             var j;
             for(j = 0; j < this.species.length; j++) {
@@ -124,7 +154,7 @@ export class Population {
                 }
             }
             if(j == this.species.length) {
-                this.species.push(new Species([player[i]]));
+                this.species.push(new Species([players[i]]));
             }
         }
     }

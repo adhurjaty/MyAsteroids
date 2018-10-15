@@ -1,9 +1,10 @@
 import { INPUT_NEURONS, OUTPUT_NEURONS } from "./player";
+import { shuffle, randomInt } from "../util";
 
-const C1 = 1.5,
-      C2 = 1.8,
-      C3 = 0.8,
-      DISTANCE_THRESHOLD;
+const C1 = 0.15,
+      C2 = 0.28,
+      C3 = 0.6,
+      DISTANCE_THRESHOLD = 1;
 
 export class Species {
     constructor(players) {
@@ -31,9 +32,11 @@ export class Species {
         var excess = excessDisjointMatching.otherExcess;
         var disjoint = excessDisjointMatching.otherDisjoint;
         var matching = excessDisjointMatching.matching;
+        var norm = Math.max(otherPlayer.brain.geneHistory.length, this.bestPlayer.brain.geneHistory.length);
 
-        var distance = (C1 * excess.length + C2 * disjoint.length) / this.players.length 
+        var distance = (C1 * excess.length + C2 * disjoint.length) / norm
                         + C3 * this.getAvgWeightDiff(matching);
+
         return distance < DISTANCE_THRESHOLD;
     }
 
@@ -48,6 +51,12 @@ export class Species {
         return totalWeightDiff / matchingGenes.length;
     }
 
+    getAvgFitness() {
+        return this.players.reduce((sum, p) => {
+            return sum + p.fitness;
+        }, 0) / this.players.length;
+    }
+
     killPlayer(player) {
         var idx = this.players.indexOf(player);
         this.players.splice(idx, 1);
@@ -57,19 +66,42 @@ export class Species {
         var newPlayer = null;
 
         if(Math.random() < .25) {
-            newPlayer = getParent().clone();
+            newPlayer = this.getParent().clone();
         } else {
-            var mom = getParent();
-            var dad = getParent(mom);
+            var mom = this.getParent();
+            var dad = this.getParent();
             newPlayer = mom.haveSexWith(dad);
         }
 
         newPlayer.brain.mutate();
         if(!this.sameSpecies(newPlayer)) {
+            debugger;
             return newPlayer;
         }
 
+        this.players.push(newPlayer);
         return null;
+    }
+
+    getParent() {
+        var shuffledPlayers = shuffle(this.players);
+        var totalFitness = this.getTotalFitness();
+        var runningTotal = 0;
+        var target = randomInt(0, totalFitness);
+        for(var i = 0; i < shuffledPlayers.length; i++) {
+            runningTotal += shuffledPlayers[i].fitness;
+            if(runningTotal >= target) {
+                return shuffledPlayers[i]
+            }
+        }
+
+        return shuffledPlayers[shuffledPlayers.length - 1];
+    }
+
+    getTotalFitness() {
+        return this.players.reduce((sum, player) => {
+            return sum + player.fitness;
+        }, 0);
     }
 
     cull() {

@@ -7,17 +7,20 @@ export class AiTrainingGame extends Game {
     constructor(width, height, player) {
         super(width, height);
         this.player = player;
+        this.counter = 0;
     }
 
     start() {
-        var counter = 0;
         while(!this.gameOver) {
-            counter++;
+            this.counter++;
             this.update();
 
-            if(counter == ACTION_INTERVAL) {
-                counter = 0;
+            if(this.counter % ACTION_INTERVAL == 0) {
                 this.makeMove();
+            }
+
+            if(this.counter > 100000) {
+                debugger;
             }
         }
 
