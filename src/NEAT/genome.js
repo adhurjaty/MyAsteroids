@@ -155,6 +155,53 @@ export class Genome {
         return this.getAllLayers()[idx];
     }
 
+    getExcessDisjointMatching(otherGenome) {
+        var excess = [];
+        var otherExcess = []
+        var disjoint = [];
+        var otherDisjoint = []
+        var matching = [];
+
+        var geneHistory = this.geneHistory;
+        var otherHistory = otherGenome.geneHistory;
+        var offset = 0;
+        for(var i = 0; i < otherHistory.length; i++) {
+            if(i + offset >= geneHistory.length) {
+                otherExcess = otherHistory.slice(i);
+                break;
+            } else if(geneHistory[i + offset].innovationNumber > otherHistory[i].innovationNumber) {
+                otherDisjoint.push(otherHistory[i]);
+                offset--;
+            } else if(geneHistory[i + offset].innovationNumber < otherHistory[i].innovationNumber) {
+                disjoint.push(geneHistory[i + offset]);
+                offset++;
+                i--;
+            } else if(geneHistory[i + offset].innovationNumber == otherHistory[i].innovationNumber) {
+                matching.push({ original: geneHistory[i + offset], other: otherHistory[i] });
+            }
+        }
+
+        excess = geneHistory.slice(otherHistory.length + offset);
+
+        return {
+            excess: excess,
+            otherExcess: otherExcess,
+            disjoint: disjoint,
+            otherDisjoint: otherDisjoint,
+            matching: matching
+        };
+    }
+
+    getGeneByInnNo(innNo) {
+        for(var i = 0; i < this.geneHistory.length; i++) {
+            if(this.geneHistory[i].innovationNumber == innNo) {
+                return this.geneHistory[i];
+            }
+        }
+
+        return -1;
+    }
+
     getAllLayers() {
         return [this.inputGenes].concat(this.hiddenLayers).concat([this.outputGenes]);
     }
@@ -193,6 +240,10 @@ export class Genome {
                 return connGene;
             }
         }
+    }
+
+    crossover(otherGenome) {
+
     }
 
     clone() {

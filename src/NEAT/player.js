@@ -8,8 +8,10 @@ export const INPUT_NEURONS = 33,
 const MOVE_ARR = [MOVE_ENUM.UP, MOVE_ENUM.DOWN, MOVE_ENUM.LEFT, MOVE_ENUM.RIGHT, MOVE_ENUM.FIRE];
 
 export class Player {
-    constructor() {
-        this.brain = new Genome(INPUT_NEURONS, OUTPUT_NEURONS);
+    constructor(brain) {
+        this.brain = brain != null 
+                        ? brain
+                        : new Genome(INPUT_NEURONS, OUTPUT_NEURONS);
         this.fitness = 0;
     }
 
@@ -26,6 +28,13 @@ export class Player {
 
     setFitness(fitness) {
         this.fitness = fitness;
+    }
+
+    haveSexWith(partner) {
+        var newBrain = this.fitness > partner.fitness
+                        ? this.brain.crossover(partner.brain)
+                        : partner.brain.crossover(this.brain);
+        return new Player(newBrain);
     }
 
     clone() {

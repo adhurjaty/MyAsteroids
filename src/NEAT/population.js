@@ -4,6 +4,8 @@ import { AiTrainingGame } from "../GameTypes/aiTrainingGame";
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from "../app";
 import { arrayMax } from "../util";
 
+const STALE_THRESHOLD = 15;
+
 export class Population {
     static setInnovationNumber(connGene) {
         for(var i = 0; i < Population.innovationHistory.length; i++) {
@@ -52,36 +54,47 @@ export class Population {
     }
 
     runGeneration() {
-        for(var i = 0; i < this.species.length; i++) {
-            for(var j = 0; j < this.species[i].players.length; j++) {
-                var player = this.species[i].players[j];
-                var game = new AiTrainingGame(CANVAS_WIDTH, CANVAS_HEIGHT, player);
-                game.start();
-            }
+        var players = this.getAllPlayers();
+        for(var i = 0; i < players.length; i++) {
+            var player = players[i];
+            var game = new AiTrainingGame(CANVAS_WIDTH, CANVAS_HEIGHT, player);
+            game.start();
         }
         this.updatePopulation();
     }
 
     updatePopulation() {
-        this.cullPopulation();
+        this.writeSpeciesResults();
+        this.greatDying();
         this.reproduce();
+        this.speciate();
     }
 
-    cullPopulation() {
-        var playersBySpec = this.getAllPlayersBySpecies();
-        playersBySpec.sort((a, b) => b.player.fitness - a.player.fitness);
-        for(var i = playersBySpec.length / 2; i < playersBySpec.length; i++) {
-            var spec = playersBySpec[i].species
-            spec.killPlayer(playersBySpec[i].player);
-            if(spec.players.length == 0) {
-                this.extinctSpecies(spec);
-            }
+    writeSpeciesResults() {
+        for(var i = 0; i < this.species.length; i++) {
+            this.species[i].updateResults();
         }
     }
 
-    extinctSpecies(species) {
-        var idx = this.species.indexOf(species);
-        this.species.splice(idx, 1);
+    greatDying() {
+        // this.extinctSpecies();
+        this.extinctStaleSpecies();
+        this.cullSpecies();
+    }
+
+    // extinctSpecies() {
+    //     this.extinctStaleSpecies();
+    //     this.extinctMorons();
+    // }
+
+    extinctStaleSpecies() {
+        this.species = this.species.filter(s => s.staleness < STALE_THRESHOLD);
+    }
+
+    cullSpecies() {
+        for(var i = 0; i < this.species.length; i++) {
+            this.species.cull();
+        }
     }
 
     getAllPlayersBySpecies() {
@@ -96,7 +109,31 @@ export class Population {
         this.species.forEach((spec) => spec.reproduce());
     }
 
+    speciate() {
+        this.species.forEach(s => {
+            s.clear();
+        });
+
+        var players = this.getAllPlayers();
+        for(var i = 0; i < players.length; i++) {
+            var j;
+            for(j = 0; j < this.species.length; j++) {
+                if(this.species[j].sameSpecies(players[i])) {
+                    this.species[j].addPlayer(players[i]);
+                    break;
+                }
+            }
+            if(j == this.species.length) {
+                this.species.push(new Species([player[i]]));
+            }
+        }
+    }
+
     getBestPlayer() {
-        return arrayMax(this.getAllPlayersBySpecies(), (pbs) => pbs.player.fitness).player;
+        return arrayMax(this.getAllPlayers(), (p) => p.fitness);
+    }
+
+    getAllPlayers() {
+        return this.species.map((s) => s.players).flat();
     }
 }
