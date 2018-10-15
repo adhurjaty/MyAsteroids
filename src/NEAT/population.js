@@ -90,18 +90,23 @@ export class Population {
     }
 
     greatDying() {
-        // this.extinctSpecies();
-        this.extinctStaleSpecies();
+        this.extinctSpecies();
         this.cullSpecies();
     }
 
-    // extinctSpecies() {
-    //     this.extinctStaleSpecies();
-    //     this.extinctMorons();
-    // }
+    extinctSpecies() {
+        this.extinctStaleSpecies();
+        this.extinctUnderperformers();
+    }
 
     extinctStaleSpecies() {
         this.species = this.species.filter(s => s.staleness < STALE_THRESHOLD);
+    }
+
+    extinctUnderperformers() {
+        var self = this;
+        var avgFitnessSum = this.getAvgFitnessSum();
+        this.species.filter(s => self.getSpeciesPopSize(s, avgFitnessSum) > 1);
     }
 
     cullSpecies() {
@@ -113,8 +118,7 @@ export class Population {
         var avgFitnessSum = this.getAvgFitnessSum();
         var newSpeciesPlayers = [];
         this.species.forEach((spec) => {
-            var avgFitness = spec.getAvgFitness();
-            var specPopSize = Math.floor(self.size * avgFitness / avgFitnessSum);
+            var specPopSize = self.getSpeciesPopSize(spec, avgFitnessSum);
             newSpeciesPlayers = newSpeciesPlayers.concat(self.reproduceSpecies(spec, specPopSize - spec.players.length));
         });
 
@@ -131,13 +135,17 @@ export class Population {
         }, 0);
     }
 
+    getSpeciesPopSize(species, avgFitnessSum) {
+        var avgFitness = species.getAvgFitness();
+        return Math.floor(this.size * avgFitness / avgFitnessSum);
+    }
+
     reproduceSpecies(spec, num) {
         var newSpeciesPlayers = [];
-        for(var i = 0; i < num.length; i++) {
+        for(var i = 0; i < num; i++) {
             var newSpeciesPlayer = spec.reproduce();
             if(newSpeciesPlayer != null) {
                 newSpeciesPlayers.push(newSpeciesPlayer);
-                debugger;
             }
         }
 

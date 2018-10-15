@@ -147,6 +147,7 @@ export class Genome {
             if(!this.isConnected(inGene, outGene)) {
                 return [inGene, outGene];
             }
+            tries++;
         }
 
         return null;

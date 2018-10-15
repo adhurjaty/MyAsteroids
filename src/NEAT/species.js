@@ -1,8 +1,8 @@
 import { INPUT_NEURONS, OUTPUT_NEURONS } from "./player";
 import { shuffle, randomInt } from "../util";
 
-const C1 = 0.15,
-      C2 = 0.28,
+const C1 = 0.3,
+      C2 = 0.5,
       C3 = 0.6,
       DISTANCE_THRESHOLD = 1;
 
@@ -32,7 +32,7 @@ export class Species {
         var excess = excessDisjointMatching.otherExcess;
         var disjoint = excessDisjointMatching.otherDisjoint;
         var matching = excessDisjointMatching.matching;
-        var norm = Math.max(otherPlayer.brain.geneHistory.length, this.bestPlayer.brain.geneHistory.length);
+        var norm = 1; // Math.max(otherPlayer.brain.geneHistory.length, this.bestPlayer.brain.geneHistory.length);
 
         var distance = (C1 * excess.length + C2 * disjoint.length) / norm
                         + C3 * this.getAvgWeightDiff(matching);
@@ -75,7 +75,6 @@ export class Species {
 
         newPlayer.brain.mutate();
         if(!this.sameSpecies(newPlayer)) {
-            debugger;
             return newPlayer;
         }
 
