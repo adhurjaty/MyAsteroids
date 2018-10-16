@@ -1,7 +1,9 @@
+import './styles/app.css';
 import { HumanGame } from './GameTypes/humanGame.js';
 import { AiDisplayGame } from './GameTypes/aiDisplayGame';
 import { Population } from './NEAT/population.js';
 import { Player } from './NEAT/player.js';
+import { graphNN } from './Graphing/networkVis.js';
 
 export const CANVAS_WIDTH = 1000,
              CANVAS_HEIGHT = 700;
@@ -28,7 +30,10 @@ window.onload = () => {
         pop.train(100);
         var player = pop.getBestPlayer();
 
+        var nn = player.brain.toJson();
+        graphNN(nn);
         debugger;
+        
         var game = new AiDisplayGame(canvas, player);
         game.start();
     }

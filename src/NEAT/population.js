@@ -57,7 +57,6 @@ export class Population {
 
     train(generations) {
         for(var i = 0; i < generations; i++) {
-            debugger;
             this.runGeneration();
         }
     }

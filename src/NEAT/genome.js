@@ -233,6 +233,22 @@ export class Genome {
         Population.setInnovationNumber(conn2);
 
         this.geneHistory = this.geneHistory.concat([conn1, conn2]);
+
+        this.insertIntoLayer(gene, connGene.inGene);
+    }
+
+    insertIntoLayer(gene, inputGene) {
+        var layers = this.getAllLayers();
+        for(var i = 0; i < layers.length - 1; i++) {
+            if(layers[i].indexOf(inputGene) > -1) {
+                if(this.hiddenLayers.length < i + 1) {
+                    this.hiddenLayers.push([gene]);
+                } else {
+                    this.hiddenLayers[i].push(gene);
+                }
+                return;
+            }
+        }
     }
 
     getRandomConnGene() {
@@ -265,5 +281,32 @@ export class Genome {
 
     clone() {
         return Object.assign(Object.create(Object.getPrototypeOf(this)), this);
+    }
+
+    toJson() {
+        var jsonObj = {nodes: []};
+        var layers = this.getAllLayers();
+        for(var i = 0; i < layers.length; i++) {
+            for(var j = 0; j < layers[i].length; j++) {
+                var connections = this.connectionsToLayerIdx(layers[i][j].connections, layers[i+1]);
+                jsonObj.nodes.push({
+                    layer: i + 1,
+                    label: layers[i][j].id,
+                    connections: connections
+                });
+            }
+        }
+        debugger;
+        return jsonObj;
+    }
+
+    connectionsToLayerIdx(connections, layer) {
+        return connections.map((connGene) => {
+            for(var i = 0; i < layer.length; i++) {
+                if(connGene.gene.id == layer[i].id) {
+                    return i;
+                }
+            }
+        });
     }
 }
