@@ -128,3 +128,7 @@ export function shuffle(arr) {
 
     return shuffled;
 }
+
+export function cloneObject(obj) {
+    return Object.assign(Object.create(Object.getPrototypeOf(obj)), obj);
+}

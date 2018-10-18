@@ -33,7 +33,7 @@ window.onload = () => {
         var nn = player.brain.toJson();
         graphNN(nn);
         debugger;
-        
+
         var game = new AiDisplayGame(canvas, player);
         game.start();
     }

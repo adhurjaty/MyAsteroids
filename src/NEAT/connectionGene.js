@@ -1,9 +1,9 @@
 import { randomGaussian, boundValue } from "../util";
 
 export class ConnectionGene {
-    constructor(inGene, outGene, weight, innovationNumber) {
-        this.inGene = inGene;
-        this.outGene = outGene;
+    constructor(inGeneId, outGeneId, weight, innovationNumber) {
+        this.inGeneId = inGeneId;
+        this.outGeneId = outGeneId;
         this.weight = weight;
         this.innovationNumber = innovationNumber;
 

@@ -8,33 +8,24 @@ const STALE_THRESHOLD = 15;
 
 export class Population {
     static setInnovationNumber(connGene) {
-        for(var i = 0; i < Population.innovationHistory.length; i++) {
-            var existingConnGene = Population.innovationHistory[i];
-            if(existingConnGene.inGene.id == connGene.inGene.id) {
-                if(Population.matchesConnectionPath(existingConnGene.outGene, connGene.outGene)) {
-                    var innNo = existingConnGene.innovationNumber;
-                    connGene.innovationNumber = innNo;
-                    return;
-                }
-            }
+        var matchingInnNo = Population.getMatchingInnNo(connGene);
+        if(matchingInnNo > -1) {
+            connGene.innovationNumber = matchingInnNo;
+            return;
         }
 
         connGene.innovationNumber = Population.innovationHistory.length + 1;
         Population.innovationHistory.push(connGene);
     }
 
-    static matchesConnectionPath(gene, otherGene) {
-        if(gene.connections.length == otherGene.connections.length) {
-            for(var i = 0; i < gene.connections.length; i++) {
-                if(gene.connections[i].id != otherGene.connections[i].id) {
-                    return false;
-                }
+    static getMatchingInnNo(connGene) {
+        for(var i = 0; i < Population.innovationHistory.length; i++) {
+            var existingConnGene = Population.innovationHistory[i];
+            if(existingConnGene.inGeneId == connGene.inGeneId
+                && existingConnGene.outGeneId == connGene.outGeneId) {
+                return existingConnGene.innovationNumber;
             }
-
-            return true;
         }
-
-        return false;
     }
 
     constructor(num) {
@@ -74,7 +65,7 @@ export class Population {
     updatePopulation() {
         this.writeSpeciesResults();
         this.sortSpecies();
-        this.greatDying();
+        // this.greatDying();
         this.reproduce();
     }
 
@@ -118,7 +109,8 @@ export class Population {
         var newSpeciesPlayers = [];
         this.species.forEach((spec) => {
             var specPopSize = self.getSpeciesPopSize(spec, avgFitnessSum);
-            newSpeciesPlayers = newSpeciesPlayers.concat(self.reproduceSpecies(spec, specPopSize - spec.players.length));
+            // newSpeciesPlayers = newSpeciesPlayers.concat(self.reproduceSpecies(spec, specPopSize - spec.players.length));
+            newSpeciesPlayers = newSpeciesPlayers.concat(self.reproduceSpecies(spec, 40));
         });
 
         var curPop = this.getAllPlayers().length;

@@ -1,7 +1,7 @@
 import { Gene } from "./gene";
 import { SigmoidGene } from "./sigmoidGene";
 import { ConnectionGene } from "./connectionGene";
-import { randomInt } from "../util";
+import { randomInt, cloneObject } from "../util";
 import { Population } from "./population";
 
 export class Genome {
@@ -9,6 +9,9 @@ export class Genome {
         this.initGenes(inputs, outputs);
         this.initHistory();
         this.generateNetwork();
+
+        this.lastCreatedGene = null;
+        this.cloneOf = null;
     }
 
     initGenes(inputs, outputs) {
@@ -28,17 +31,53 @@ export class Genome {
         var firstLayer = this.inputGenes.concat(this.biasGene);
         for(var i = 0; i < firstLayer.length; i++) {
             for(var j = 0; j < this.outputGenes.length; j++) {
-                this.geneHistory.push(new ConnectionGene(firstLayer[i], this.outputGenes[j], 2 * Math.random() - 1, innovationNumber));
+                this.geneHistory.push(new ConnectionGene(firstLayer[i].id, this.outputGenes[j].id, 2 * Math.random() - 1, innovationNumber));
                 innovationNumber++;
             }
         }
     }
 
     generateNetwork() {
+        var self = this;
         this.clearAllGenes();
         this.geneHistory.filter((gh) => gh.enabled).forEach((gh) => {
-            gh.inGene.addConnection(gh.outGene, gh.weight);
+            var inGene = self.getGeneById(gh.inGeneId);
+            var outGene = self.getGeneById(gh.outGeneId);
+            if(outGene == null) {
+                debugger;
+            }
+            inGene.addConnection(outGene, gh.weight);
         });
+        this.setHiddenLayers();
+    }
+
+    setHiddenLayers() {
+        var inputLayer = this.getLayer(0);
+        this.hiddenLayers = [];
+        for(var i = 0; i < inputLayer.length; i++) {
+            var connections = inputLayer[i].connections;
+            for(var j = 0; j < connections.length; j++) {
+                this.assignGeneToHidden(connections[j].gene)
+            }
+        }
+    }
+
+    assignGeneToHidden(gene, layerIdx) {
+        if(gene.connections.length == 0) {
+            return;
+        }
+        layerIdx = layerIdx | 0;
+        if(layerIdx > 4) {
+            debugger;
+        }
+        if(this.hiddenLayers.length <= layerIdx) {
+            this.hiddenLayers.push([gene]);
+        } else {
+            this.hiddenLayers[layerIdx].push(gene);
+        }
+        for(var i = 0; i < gene.connections.length; i++) {
+            this.assignGeneToHidden(gene.connections[i].gene, layerIdx + 1);
+        }
     }
 
     feedForward(inputs) {
@@ -62,23 +101,27 @@ export class Genome {
     }
 
     clearAllGenes() {
-        this.getAllGenes().forEach(gene => {
+        var self = this;
+        this.getAllGenes().filter(g => g.id != self.biasGene.id).forEach(gene => {
             gene.clear();
         });
     }
 
     clearAllGeneValues() {
-        this.getAllGenes().forEach(gene => {
+        var self = this;
+        this.getAllGenes().filter(g => g.id != self.biasGene.id).forEach(gene => {
             gene.value = 0;
         });
     }
 
     getAllGenes() {
-        return this.inputGenes.concat(this.outputGenes).concat(...this.hiddenLayers);
+        return this.getAllLayers().flat();
     }
 
     mutate() {
         var rand = Math.random();
+        var conn = false;
+        var add = false;
 
         if(rand < .8) {
             this.mutateWeight();
@@ -87,11 +130,18 @@ export class Genome {
         rand = Math.random();
         if(rand < .05) {
             this.addConnection();
+            conn = true;
         }
 
         rand = Math.random();
         if(rand < .03) {
             this.addNewGene();
+            add = true;
+        }
+
+        var lastGH = this.geneHistory[this.geneHistory.length - 1];
+        if(this.getGeneById(lastGH.inGeneId) == null || this.getGeneById(lastGH.outGeneId) == null) {
+            debugger;
         }
 
         this.generateNetwork();
@@ -110,8 +160,11 @@ export class Genome {
 
         var conn = this.findValidConnection();
         if(conn != null) {
-            var connGene = new ConnectionGene(conn[0], conn[1], 2 * Math.random() - 1, -1);
+            var connGene = new ConnectionGene(conn[0].id, conn[1].id, 2 * Math.random() - 1, -1);
             Population.setInnovationNumber(connGene);
+            if(connGene.inGeneId == connGene.outGeneId) {
+                debugger;
+            }
             this.geneHistory.push(connGene);
         }
     }
@@ -135,16 +188,19 @@ export class Genome {
     }
 
     findValidConnection() {
-        var layers = 2 + this.hiddenLayers.length;
+        var layers = this.getAllLayers();
         var tries = 0;
         while(tries < 100) {     // give up after some number of tries
-            var inLayerIdx = randomInt(0, layers - 1);
-            var outLayerIdx = randomInt(inLayerIdx + 1, layers);
-            var inGeneIdx = randomInt(0, this.getLayer(inLayerIdx).length);
-            var outGeneIdx = randomInt(0, this.getLayer(outLayerIdx).length);
-            var inGene = this.getLayer(inLayerIdx)[inGeneIdx];
-            var outGene = this.getLayer(outLayerIdx)[outGeneIdx];
+            var inLayerIdx = randomInt(0, layers.length - 1);
+            var outLayerIdx = randomInt(inLayerIdx + 1, layers.length);
+            var inGeneIdx = randomInt(0, layers[inLayerIdx].length);
+            var outGeneIdx = randomInt(0, layers[outLayerIdx].length);
+            var inGene = layers[inLayerIdx][inGeneIdx];
+            var outGene = layers[outLayerIdx][outGeneIdx];
             if(!this.isConnected(inGene, outGene)) {
+                if(inGene.id == outGene.id) {
+                    debugger;
+                }
                 return [inGene, outGene];
             }
             tries++;
@@ -204,14 +260,28 @@ export class Genome {
         return -1;
     }
 
+    getGeneById(id) {
+        return this.getAllGenes().find(g => g.id == id);
+    }
+
+    createNewGene() {
+        var gene = new SigmoidGene(this.nextGeneId);
+        this.nextGeneId++;
+        this.lastCreatedGene = gene;
+
+        return gene;
+    }
+
     getAllLayers() {
-        return [this.inputGenes].concat(this.hiddenLayers).concat([this.outputGenes]);
+        return [this.inputGenes.concat([this.biasGene])]
+                .concat(this.hiddenLayers)
+                .concat([this.outputGenes]);
     }
 
     isConnected(inGene, outGene) {
         for(var i = 0; i < this.geneHistory.length; i++) {
             var cg = this.geneHistory[i];
-            if(cg.inGene.id == inGene.id && cg.outGene.id == outGene.id) {
+            if(cg.inGeneId == inGene.id && cg.outGeneId == outGene.id) {
                 return true;
             }
         }
@@ -223,38 +293,28 @@ export class Genome {
         var connGene = this.getRandomConnGene();
         connGene.disable();
 
-        var gene = new SigmoidGene(this.nextGeneId);
-        this.nextGeneId++;
+        if(this.getGeneById(this.nextGeneId) != null) {
+            debugger;
+        }
 
-        var conn1 = new ConnectionGene(connGene.inGene, gene, 1, -1);
+        var gene = this.createNewGene();
+
+        var conn1 = new ConnectionGene(connGene.inGeneId, gene.id, 1, -1);
         Population.setInnovationNumber(conn1);
 
-        var conn2 = new ConnectionGene(gene, connGene.outGene, connGene.weight);
+        var conn2 = new ConnectionGene(gene.id, connGene.outGeneId, connGene.weight, -1);
         Population.setInnovationNumber(conn2);
 
         this.geneHistory = this.geneHistory.concat([conn1, conn2]);
 
-        this.insertIntoLayer(gene, connGene.inGene);
-    }
-
-    insertIntoLayer(gene, inputGene) {
-        var layers = this.getAllLayers();
-        for(var i = 0; i < layers.length - 1; i++) {
-            if(layers[i].indexOf(inputGene) > -1) {
-                if(this.hiddenLayers.length < i + 1) {
-                    this.hiddenLayers.push([gene]);
-                } else {
-                    this.hiddenLayers[i].push(gene);
-                }
-                return;
-            }
-        }
+        // add it to a new hidden layer. It will be put in the correct location after generateNetowrk
+        this.hiddenLayers.push([gene]);
     }
 
     getRandomConnGene() {
         while(true) {
             var connGene = this.geneHistory[randomInt(0, this.geneHistory.length)];
-            if(connGene.inGene.id != this.biasGene.id) {
+            if(connGene.inGeneId != this.biasGene.id) {
                 return connGene;
             }
         }
@@ -280,7 +340,16 @@ export class Genome {
     }
 
     clone() {
-        return Object.assign(Object.create(Object.getPrototypeOf(this)), this);
+        var c = cloneObject(this);
+        c.geneHistory = this.geneHistory.map(g => cloneObject(g));
+        c.inputGenes = this.inputGenes.map(g => cloneObject(g));
+        for(var i = 0; i < this.hiddenLayers.length; i++) {
+            c.hiddenLayers[i] = this.hiddenLayers[i].map(g => cloneObject(g));
+        }
+        c.outputGenes = this.outputGenes.map(g => cloneObject(g));
+        c.biasGene = cloneObject(this.biasGene);
+        c.cloneOf = this;
+        return c;
     }
 
     toJson() {
