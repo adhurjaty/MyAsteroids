@@ -27,7 +27,7 @@ window.onload = () => {
         // game.start();
         
         var pop = new Population(100);
-        pop.train(100);
+        pop.train(1000);
         var player = pop.getBestPlayer();
 
         var nn = player.brain.toJson();

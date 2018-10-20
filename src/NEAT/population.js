@@ -50,6 +50,7 @@ export class Population {
         for(var i = 0; i < generations; i++) {
             this.runGeneration();
         }
+        debugger;
     }
 
     runGeneration() {

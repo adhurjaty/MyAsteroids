@@ -305,9 +305,19 @@ export class Genome {
                                        .concat(edm.excess)
                                        .concat(edm.otherExcess);
         newGeneHistory.sort((a, b) => a.innovationNumber - b.innovationNumber);
+
+        this.addCrossoverGenes(newGeneHistory);
+
         var newGenome = this.clone();
         newGenome.geneHistory = newGeneHistory.map(g => cloneObject(g));
         return newGenome;
+    }
+
+    addCrossoverGenes(geneHistory) {
+        var maxGeneId = Math.max(...geneHistory.map(gh => [gh.inGeneId, gh.outGeneId]).flat())
+        for(var i = this.genes.length; i < maxGeneId + 1; i++) {
+            this.genes.push(new Gene(1));
+        }
     }
 
     clone() {
