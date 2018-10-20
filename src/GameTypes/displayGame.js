@@ -1,7 +1,7 @@
 import { Game } from "./game";
 import { Point } from "../util";
 
-const GAME_RATE_INTERVAL = 15;
+const GAME_RATE_INTERVAL = 20;
 
 export class DisplayGame extends Game {
     constructor(canvas) {

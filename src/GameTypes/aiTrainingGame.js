@@ -2,7 +2,7 @@ import { Game } from "./game";
 import { ACTION_THRESHOLD } from "../NEAT/player";
 
 const ACTION_INTERVAL = 15, // number of timesteps to skip per new AI decision
-      LIFETIME_FITNESS_GAIN = 1/1000,
+      LIFETIME_FITNESS_GAIN = 1/100,
       SCORE_GAIN = 10;
 
 

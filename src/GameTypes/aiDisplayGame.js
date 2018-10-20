@@ -59,9 +59,11 @@ export class AiDisplayGame extends DisplayGame {
             } else {
                 this.ctx.lineWidth = 1;
             }
+            this.ctx.beginPath();
             this.ctx.moveTo(...canvasStart.toArray());
             this.ctx.lineTo(...canvasEnd.toArray());
             this.ctx.stroke();
         }
+        this.ctx.lineWidth = 1;
     }
 }
