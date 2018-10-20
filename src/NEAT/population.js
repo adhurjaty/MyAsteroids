@@ -43,7 +43,7 @@ export class Population {
     }
 
     initGlobalInnoHistory(genome) {
-        Population.innovationHistory = genome.geneHistory;
+        Population.innovationHistory = genome.geneHistory.slice(0);
     }
 
     train(generations) {
@@ -65,7 +65,7 @@ export class Population {
     updatePopulation() {
         this.writeSpeciesResults();
         this.sortSpecies();
-        // this.greatDying();
+        this.greatDying();
         this.reproduce();
     }
 
@@ -109,8 +109,7 @@ export class Population {
         var newSpeciesPlayers = [];
         this.species.forEach((spec) => {
             var specPopSize = self.getSpeciesPopSize(spec, avgFitnessSum);
-            // newSpeciesPlayers = newSpeciesPlayers.concat(self.reproduceSpecies(spec, specPopSize - spec.players.length));
-            newSpeciesPlayers = newSpeciesPlayers.concat(self.reproduceSpecies(spec, 40));
+            newSpeciesPlayers = newSpeciesPlayers.concat(self.reproduceSpecies(spec, specPopSize - spec.players.length));
         });
 
         var curPop = this.getAllPlayers().length;

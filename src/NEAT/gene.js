@@ -1,6 +1,6 @@
 export class Gene {
-    constructor(id) {
-        this.id = id;
+    constructor(layer) {
+        this.layer = layer;
         this.value = 0;
         this.connections = [];
     }

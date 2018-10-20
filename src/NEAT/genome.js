@@ -15,23 +15,24 @@ export class Genome {
     }
 
     initGenes(inputs, outputs) {
-        this.inputGenes = Array(inputs).fill().map((g, i) => new Gene(i));
-        this.outputGenes = Array(outputs).fill().map((g, i) => new SigmoidGene(inputs + i));
-        this.biasGene = new Gene(inputs + outputs);
-        this.biasGene.value = 1;
-        this.biasGene.id = inputs + outputs;
-        this.nextGeneId = inputs + outputs + 1;
-        this.hiddenLayers = [];
+        this.inputs = inputs;
+        this.outputs = outputs;
+        var inputGenes = Array(inputs).fill().map((g, i) => new Gene(0));
+        var outputGenes = Array(outputs).fill().map((g, i) => new SigmoidGene(1));
+        var biasGene = new Gene(0);
+        biasGene.value = 1;
+        this.genes = inputGenes.concat([biasGene]).concat(outputGenes);
     }
 
     initHistory() {
         this.geneHistory = [];
 
         var innovationNumber = 0;
-        var firstLayer = this.inputGenes.concat(this.biasGene);
+        var firstLayer = this.getLayer(0);
+        var outputLayer = this.getOutputLayer();
         for(var i = 0; i < firstLayer.length; i++) {
-            for(var j = 0; j < this.outputGenes.length; j++) {
-                this.geneHistory.push(new ConnectionGene(firstLayer[i].id, this.outputGenes[j].id, 2 * Math.random() - 1, innovationNumber));
+            for(var j = 0; j < outputLayer.length; j++) {
+                this.geneHistory.push(new ConnectionGene(i, firstLayer.length + j, 2 * Math.random() - 1, innovationNumber));
                 innovationNumber++;
             }
         }
@@ -41,87 +42,78 @@ export class Genome {
         var self = this;
         this.clearAllGenes();
         this.geneHistory.filter((gh) => gh.enabled).forEach((gh) => {
-            var inGene = self.getGeneById(gh.inGeneId);
-            var outGene = self.getGeneById(gh.outGeneId);
-            if(outGene == null) {
-                debugger;
-            }
+            var inGene = self.genes[gh.inGeneId];
+            var outGene = self.genes[gh.outGeneId];
             inGene.addConnection(outGene, gh.weight);
         });
-        this.setHiddenLayers();
+        this.setGeneLayers();
     }
 
-    setHiddenLayers() {
+    setGeneLayers() {
         var inputLayer = this.getLayer(0);
-        this.hiddenLayers = [];
         for(var i = 0; i < inputLayer.length; i++) {
             var connections = inputLayer[i].connections;
             for(var j = 0; j < connections.length; j++) {
-                this.assignGeneToHidden(connections[j].gene)
+                this.assignGeneLayer(connections[j].gene)
             }
         }
+        this.setOutputLayer();
     }
 
-    assignGeneToHidden(gene, layerIdx) {
+    assignGeneLayer(gene, layerIdx) {
+        layerIdx = layerIdx | 0;
+        gene.layer = Math.max(gene.layer, layerIdx + 1);
         if(gene.connections.length == 0) {
             return;
         }
-        layerIdx = layerIdx | 0;
-        if(layerIdx > 4) {
-            debugger;
-        }
-        if(this.hiddenLayers.length <= layerIdx) {
-            this.hiddenLayers.push([gene]);
-        } else {
-            this.hiddenLayers[layerIdx].push(gene);
-        }
+
         for(var i = 0; i < gene.connections.length; i++) {
-            this.assignGeneToHidden(gene.connections[i].gene, layerIdx + 1);
+            this.assignGeneLayer(gene.connections[i].gene, gene.layer);
         }
     }
+
+    setOutputLayer() {
+        var outLayer = Math.max(...this.getOutputLayer().map(g => g.layer));
+        this.getOutputLayer().forEach(g => {
+            g.layer = outLayer;
+        })
+    };
 
     feedForward(inputs) {
         this.clearAllGeneValues();
+        var inputLayer = this.getInputLayer();
         for(var i = 0; i < inputs.length; i++) {
-            this.inputGenes[i].value = inputs[i];
-            this.inputGenes[i].engage();
+            inputLayer[i].value = inputs[i];
         }
 
-        for(var i = 0; i < this.hiddenLayers.length; i++) {
-            for(var j = 0; j < this.hiddenLayers[i].length; j++) {
-                this.hiddenLayers[i][j].engage();
+        var layers = this.getAllLayers();
+        for(var i = 0; i < layers.length; i++) {
+            for(var j = 0; j < layers[i].length; j++) {
+                layers[i][j].engage();
             }
         }
 
-        for(var i = 0; i < this.outputGenes.length; i++) {
-            this.outputGenes[i].engage();
-        }
-
-        return this.outputGenes.map((gene) => gene.value);
+        return layers[layers.length - 1].map((gene) => gene.value);
     }
 
     clearAllGenes() {
-        var self = this;
-        this.getAllGenes().filter(g => g.id != self.biasGene.id).forEach(gene => {
+        this.genes.forEach(gene => {
             gene.clear();
         });
     }
 
     clearAllGeneValues() {
-        var self = this;
-        this.getAllGenes().filter(g => g.id != self.biasGene.id).forEach(gene => {
+        this.getAllGenesNoBias().forEach(gene => {
             gene.value = 0;
         });
     }
 
-    getAllGenes() {
-        return this.getAllLayers().flat();
+    getAllGenesNoBias() {
+        return this.genes.slice(0, this.inputs).concat(this.genes.slice(this.inputs + 1));
     }
 
     mutate() {
         var rand = Math.random();
-        var conn = false;
-        var add = false;
 
         if(rand < .8) {
             this.mutateWeight();
@@ -130,18 +122,11 @@ export class Genome {
         rand = Math.random();
         if(rand < .05) {
             this.addConnection();
-            conn = true;
         }
 
         rand = Math.random();
         if(rand < .03) {
             this.addNewGene();
-            add = true;
-        }
-
-        var lastGH = this.geneHistory[this.geneHistory.length - 1];
-        if(this.getGeneById(lastGH.inGeneId) == null || this.getGeneById(lastGH.outGeneId) == null) {
-            debugger;
         }
 
         this.generateNetwork();
@@ -160,11 +145,8 @@ export class Genome {
 
         var conn = this.findValidConnection();
         if(conn != null) {
-            var connGene = new ConnectionGene(conn[0].id, conn[1].id, 2 * Math.random() - 1, -1);
+            var connGene = new ConnectionGene(conn[0], conn[1], 2 * Math.random() - 1, -1);
             Population.setInnovationNumber(connGene);
-            if(connGene.inGeneId == connGene.outGeneId) {
-                debugger;
-            }
             this.geneHistory.push(connGene);
         }
     }
@@ -197,11 +179,10 @@ export class Genome {
             var outGeneIdx = randomInt(0, layers[outLayerIdx].length);
             var inGene = layers[inLayerIdx][inGeneIdx];
             var outGene = layers[outLayerIdx][outGeneIdx];
-            if(!this.isConnected(inGene, outGene)) {
-                if(inGene.id == outGene.id) {
-                    debugger;
-                }
-                return [inGene, outGene];
+            var inGeneId = this.genes.indexOf(inGene);
+            var outGeneId = this.genes.indexOf(outGene);
+            if(!this.isConnected(inGeneId, outGeneId)) {
+                return [inGeneId, outGeneId];
             }
             tries++;
         }
@@ -209,8 +190,32 @@ export class Genome {
         return null;
     }
 
-    getLayer(idx) {
-        return this.getAllLayers()[idx];
+    isConnected(inGeneId, outGeneId) {
+        for(var i = 0; i < this.geneHistory.length; i++) {
+            var cg = this.geneHistory[i];
+            if(cg.inGeneId == inGeneId && cg.outGeneId == outGeneId) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    addNewGene() {
+        var connGene = this.getRandomConnGene();
+        connGene.disable();
+
+        var gene = new SigmoidGene(1);  // put it in random layer, will be corrected in setLayers
+
+        var conn1 = new ConnectionGene(connGene.inGeneId, this.genes.length, 1, -1);
+        Population.setInnovationNumber(conn1);
+
+        var conn2 = new ConnectionGene(this.genes.length, connGene.outGeneId, connGene.weight, -1);
+        Population.setInnovationNumber(conn2);
+
+        this.geneHistory = this.geneHistory.concat([conn1, conn2]);
+
+        this.genes.push(gene);
     }
 
     getExcessDisjointMatching(otherGenome) {
@@ -251,70 +256,36 @@ export class Genome {
     }
 
     getGeneByInnNo(innNo) {
-        for(var i = 0; i < this.geneHistory.length; i++) {
-            if(this.geneHistory[i].innovationNumber == innNo) {
-                return this.geneHistory[i];
-            }
-        }
-
-        return -1;
-    }
-
-    getGeneById(id) {
-        return this.getAllGenes().find(g => g.id == id);
-    }
-
-    createNewGene() {
-        var gene = new SigmoidGene(this.nextGeneId);
-        this.nextGeneId++;
-        this.lastCreatedGene = gene;
-
-        return gene;
+        return this.geneHistory.find(g => g.innovationNumber == innNo);
     }
 
     getAllLayers() {
-        return [this.inputGenes.concat([this.biasGene])]
-                .concat(this.hiddenLayers)
-                .concat([this.outputGenes]);
-    }
-
-    isConnected(inGene, outGene) {
-        for(var i = 0; i < this.geneHistory.length; i++) {
-            var cg = this.geneHistory[i];
-            if(cg.inGeneId == inGene.id && cg.outGeneId == outGene.id) {
-                return true;
+        return this.genes.reduce((lst, g) => {
+            var initLen = lst.length;
+            for(var i = 0; i < g.layer - initLen + 1; i++) {
+                lst.push([]);
             }
-        }
-
-        return false;
+            lst[g.layer].push(g);
+            return lst;
+        }, []);
     }
 
-    addNewGene() {
-        var connGene = this.getRandomConnGene();
-        connGene.disable();
+    getInputLayer() {
+        return this.genes.slice(0, this.inputs);
+    }
 
-        if(this.getGeneById(this.nextGeneId) != null) {
-            debugger;
-        }
+    getOutputLayer() {
+        return this.genes.slice(this.inputs + 1, this.inputs + 1 + this.outputs);
+    }
 
-        var gene = this.createNewGene();
-
-        var conn1 = new ConnectionGene(connGene.inGeneId, gene.id, 1, -1);
-        Population.setInnovationNumber(conn1);
-
-        var conn2 = new ConnectionGene(gene.id, connGene.outGeneId, connGene.weight, -1);
-        Population.setInnovationNumber(conn2);
-
-        this.geneHistory = this.geneHistory.concat([conn1, conn2]);
-
-        // add it to a new hidden layer. It will be put in the correct location after generateNetowrk
-        this.hiddenLayers.push([gene]);
+    getLayer(idx) {
+        return this.getAllLayers()[idx];
     }
 
     getRandomConnGene() {
         while(true) {
             var connGene = this.geneHistory[randomInt(0, this.geneHistory.length)];
-            if(connGene.inGeneId != this.biasGene.id) {
+            if(connGene.inGeneId != this.inputs + 1) {
                 return connGene;
             }
         }
@@ -335,19 +306,14 @@ export class Genome {
                                        .concat(edm.otherExcess);
         newGeneHistory.sort((a, b) => a.innovationNumber - b.innovationNumber);
         var newGenome = this.clone();
-        newGenome.geneHistory = newGeneHistory;
+        newGenome.geneHistory = newGeneHistory.map(g => cloneObject(g));
         return newGenome;
     }
 
     clone() {
         var c = cloneObject(this);
         c.geneHistory = this.geneHistory.map(g => cloneObject(g));
-        c.inputGenes = this.inputGenes.map(g => cloneObject(g));
-        for(var i = 0; i < this.hiddenLayers.length; i++) {
-            c.hiddenLayers[i] = this.hiddenLayers[i].map(g => cloneObject(g));
-        }
-        c.outputGenes = this.outputGenes.map(g => cloneObject(g));
-        c.biasGene = cloneObject(this.biasGene);
+        c.genes = this.genes.map(g => cloneObject(g));
         c.cloneOf = this;
         return c;
     }
@@ -357,23 +323,28 @@ export class Genome {
         var layers = this.getAllLayers();
         for(var i = 0; i < layers.length; i++) {
             for(var j = 0; j < layers[i].length; j++) {
-                var connections = this.connectionsToLayerIdx(layers[i][j].connections, layers[i+1]);
+                var connections = this.connectionsToLayerIdx(layers[i][j].connections, i+1);
+                var label = this.genes.indexOf(layers[i][j]);
                 jsonObj.nodes.push({
                     layer: i + 1,
-                    label: layers[i][j].id,
+                    label: label,
                     connections: connections
                 });
             }
         }
-        debugger;
         return jsonObj;
     }
 
-    connectionsToLayerIdx(connections, layer) {
+    connectionsToLayerIdx(connections, layerIdx) {
+        var layers = this.getAllLayers();
         return connections.map((connGene) => {
-            for(var i = 0; i < layer.length; i++) {
-                if(connGene.gene.id == layer[i].id) {
-                    return i;
+            for(var i = layerIdx; i < layers.length; i++) {
+                for(var j = 0; j < layers[i].length; j++) {
+                    var connGeneId = this.genes.indexOf(connGene.gene);
+                    var geneId = this.genes.indexOf(layers[i][j]);
+                    if(connGeneId == geneId) {
+                        return i;
+                    }
                 }
             }
         });

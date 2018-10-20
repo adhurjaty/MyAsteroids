@@ -1,8 +1,8 @@
 import { Gene } from "./gene";
 
 export class SigmoidGene extends Gene {
-    constructor(id) {
-        super(id);
+    constructor(layer) {
+        super(layer);
     }
 
     engage() {

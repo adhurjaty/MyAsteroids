@@ -65,21 +65,20 @@ export class Species {
     reproduce() {
         var newPlayer = null;
 
-        // newPlayer = this.getParent().clone();
-        // if(Math.random() < .25) {
-        //     newPlayer = this.getParent().clone();
-        // } else {
-        //     var mom = this.getParent();
-        //     var dad = this.getParent();
-        //     newPlayer = mom.haveSexWith(dad);
-        // }
-        this.getParent().brain.mutate();
-        // newPlayer.brain.mutate();
-        // if(!this.sameSpecies(newPlayer)) {
-        //     return newPlayer;
-        // }
+        if(Math.random() < .25) {
+            newPlayer = this.getParent().clone();
+        } else {
+            var mom = this.getParent();
+            var dad = this.getParent();
+            newPlayer = mom.haveSexWith(dad);
+        }
 
-        // this.players.push(newPlayer);
+        newPlayer.brain.mutate();
+        if(!this.sameSpecies(newPlayer)) {
+            return newPlayer;
+        }
+
+        this.players.push(newPlayer);
         return null;
     }
 
