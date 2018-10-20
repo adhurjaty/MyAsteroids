@@ -1,16 +1,16 @@
 import { Point } from "./util";
 import { GameObject } from "./Components/gameObject";
 
-const SHOT_DISTANCE = 500;  // approximate distance a bullet can travel, so no point looking further
+export const SHOT_DISTANCE = 500;  // approximate distance a bullet can travel, so no point looking further
 
 export class VectorCalculator {
     constructor(gameState) {
         this.gameState = gameState;
-        this.vector = Array(33).fill(0);
         this.fillVector();
     }
 
     fillVector() {
+        this.vector = Array(33).fill(0);
         var asteroids = this.shiftWorld(this.gameState.asteroids);
         var inRangeAsteroids = this.getAsteroidsInRange(asteroids);
         if(inRangeAsteroids.length > 0) {
