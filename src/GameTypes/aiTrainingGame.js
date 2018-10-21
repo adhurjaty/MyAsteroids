@@ -2,7 +2,7 @@ import { Game } from "./game";
 import { ACTION_THRESHOLD } from "../NEAT/player";
 
 const ACTION_INTERVAL = 15, // number of timesteps to skip per new AI decision
-      LIFETIME_FITNESS_GAIN = 1/100,
+      LIFETIME_FITNESS_GAIN = 1/1000,
       SCORE_GAIN = 10;
 
 
@@ -20,10 +20,6 @@ export class AiTrainingGame extends Game {
 
             if(this.counter % ACTION_INTERVAL == 0) {
                 this.makeMove();
-            }
-
-            if(this.counter > 100000) {
-                debugger;
             }
         }
 
@@ -44,6 +40,6 @@ export class AiTrainingGame extends Game {
     }
 
     getFitness() {
-        return this.score * SCORE_GAIN + this.counter * LIFETIME_FITNESS_GAIN;
+        return this.score * SCORE_GAIN * this.counter * LIFETIME_FITNESS_GAIN;
     }
 }

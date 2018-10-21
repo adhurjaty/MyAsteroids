@@ -36,11 +36,12 @@ export class AiDisplayGame extends DisplayGame {
         }
     }
 
-    draw() {
-        super.draw();
-        this.drawVision();
-    }
+    // draw() {
+    //     super.draw();
+    //     this.drawVision();
+    // }
 
+    // for debugging purposes
     drawVision() {
         var canvasStart = this.convertToDrawCoords(this.ship.cp);
 

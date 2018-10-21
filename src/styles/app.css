@@ -1,14 +1,29 @@
+body {
+  font: 10px sans-serif;
+}
+
 text {
     pointer-events: none;
-  }
-  
-  .node:hover {
+}
+
+.node:hover {
     stroke: #999;
     stroke-opacity: .6;
     stroke-width: 4px;
-  }
-  
-  .link {
+}
+
+.link {
     stroke: #999;
     stroke-opacity: .6;
-  }
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+  
+.browser text {
+    text-anchor: end;
+}

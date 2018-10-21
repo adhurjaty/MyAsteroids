@@ -7,10 +7,11 @@ const C1 = 0.2,
       DISTANCE_THRESHOLD = 1;
 
 export class Species {
-    constructor(players) {
+    constructor(players, id) {
         this.players = players;
         this.bestPlayer = players[0];
         this.staleness = 0;
+        this.id = id;
     }
 
     updateResults() {

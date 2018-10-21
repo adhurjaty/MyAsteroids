@@ -4,6 +4,7 @@ import { AiDisplayGame } from './GameTypes/aiDisplayGame';
 import { Population } from './NEAT/population.js';
 import { Player } from './NEAT/player.js';
 import { graphNN } from './Graphing/networkVis.js';
+import { speciationChart } from './Graphing/speciationChart';
 
 export const CANVAS_WIDTH = 1000,
              CANVAS_HEIGHT = 700;
@@ -27,12 +28,15 @@ window.onload = () => {
         // game.start();
         
         var pop = new Population(100);
-        pop.train(100);
+        pop.train(200);
         var player = pop.getBestPlayer();
 
         var nn = player.brain.toJson();
         graphNN(nn);
+
+        var speciation = pop.getSpeciation();
         debugger;
+        speciationChart(speciation);
 
         var game = new AiDisplayGame(canvas, player);
         game.start();

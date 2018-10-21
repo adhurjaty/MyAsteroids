@@ -31,8 +31,9 @@ export class Population {
     constructor(num) {
         this.size = num;
         this.initPlayers();
-        this.species = [new Species(this.players)];
+        this.species = [new Species(this.players, 0)];
         this.initGlobalInnoHistory(this.players[0].brain);
+        this.speciation = [];
     }
 
     initPlayers() {
@@ -49,6 +50,7 @@ export class Population {
     train(generations) {
         for(var i = 0; i < generations; i++) {
             this.runGeneration();
+            this.updateSpeciation(i);
         }
         debugger;
     }
@@ -58,7 +60,7 @@ export class Population {
         for(var i = 0; i < players.length; i++) {
             var player = players[i];
             var game = new AiTrainingGame(CANVAS_WIDTH, CANVAS_HEIGHT, player);
-            game.start();
+            game.start()
         }
         this.updatePopulation();
     }
@@ -91,7 +93,7 @@ export class Population {
     }
 
     extinctStaleSpecies() {
-        this.species = this.species.filter(s => s.staleness < STALE_THRESHOLD);
+        this.species = this.species.filter((s, i) => i == 0 || s.staleness < STALE_THRESHOLD);
     }
 
     extinctUnderperformers() {
@@ -153,7 +155,7 @@ export class Population {
                 }
             }
             if(j == this.species.length) {
-                this.species.push(new Species([players[i]]));
+                this.species.push(new Species([players[i]], this.species.length));
             }
         }
     }
@@ -164,5 +166,19 @@ export class Population {
 
     getAllPlayers() {
         return this.species.map((s) => s.players).flat();
+    }
+
+    updateSpeciation(generation) {
+        var spec = {
+            generation: generation
+        }
+        for(var i = 0; i < this.species.length; i++) {
+            spec[this.species[i].id] = this.species[i].players.length;
+        }
+        this.speciation.push(spec);
+    }
+
+    getSpeciation() {
+        return this.speciation;
     }
 }

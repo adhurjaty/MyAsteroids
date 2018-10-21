@@ -40,6 +40,7 @@ export class Player {
     clone() {
         var newPlayer = new Player();
         newPlayer.brain = this.brain.clone();
+        newPlayer.fitness = this.fitness;
 
         return newPlayer;
     }
