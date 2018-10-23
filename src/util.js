@@ -132,3 +132,17 @@ export function shuffle(arr) {
 export function cloneObject(obj) {
     return Object.assign(Object.create(Object.getPrototypeOf(obj)), obj);
 }
+
+export function addEmptyChartItems(data) {
+    var keys = [];
+    data.forEach(d => {
+        keys = keys.concat(Object.keys(d).filter(x => keys.indexOf(x) == -1));
+    });
+
+    return data.map(d => {
+        keys.filter(key => Object.keys(d).indexOf(key) == -1).forEach(key => {
+            d[key] = 0;
+        });
+        return d;
+    })
+}

@@ -2,6 +2,7 @@
 
 import * as d3 from 'd3';
 import { CANVAS_WIDTH } from '../app'
+import { addEmptyChartItems } from '../util';
 
 const SVG_HEIGHT = 600;
 
@@ -40,7 +41,7 @@ export function speciationChart(data) {
                 .append("g")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    data = addEmptyItems(data);
+    data = addEmptyChartItems(data);
 
     color.domain(d3.keys(data[0]).filter(function(key) { return key !== "generation"; }));
 
@@ -96,16 +97,4 @@ export function speciationChart(data) {
         .call(yAxis);
 }
 
-function addEmptyItems(data) {
-    var keys = [];
-    data.forEach(d => {
-        keys = keys.concat(Object.keys(d).filter(x => keys.indexOf(x) == -1));
-    });
 
-    return data.map(d => {
-        keys.filter(key => Object.keys(d).indexOf(key) == -1).forEach(key => {
-            d[key] = 0;
-        });
-        return d;
-    })
-}

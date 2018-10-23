@@ -34,6 +34,7 @@ export class Population {
         this.species = [new Species(this.players, 0)];
         this.initGlobalInnoHistory(this.players[0].brain);
         this.speciation = [];
+        this.fitnessByGen = [];
     }
 
     initPlayers() {
@@ -50,9 +51,8 @@ export class Population {
     train(generations) {
         for(var i = 0; i < generations; i++) {
             this.runGeneration();
-            this.updateSpeciation(i);
+            this.updateGraphs(i);
         }
-        debugger;
     }
 
     runGeneration() {
@@ -117,7 +117,8 @@ export class Population {
 
         var curPop = this.getAllPlayers().length;
         var bestSpecies = this.species[0];
-        newSpeciesPlayers = newSpeciesPlayers.concat(this.reproduceSpecies(bestSpecies, this.size - curPop))
+        newSpeciesPlayers = newSpeciesPlayers.concat(
+            this.reproduceSpecies(bestSpecies, this.size - curPop));
 
         this.speciate(newSpeciesPlayers);
     }
@@ -168,17 +169,26 @@ export class Population {
         return this.species.map((s) => s.players).flat();
     }
 
-    updateSpeciation(generation) {
+    updateGraphs(generation) {
         var spec = {
             generation: generation
-        }
+        };
+        var fitnesses = {
+            generation: generation
+        };
         for(var i = 0; i < this.species.length; i++) {
             spec[this.species[i].id] = this.species[i].players.length;
+            fitnesses[this.species[i].id] = this.species[i].bestPlayer.fitness;
         }
         this.speciation.push(spec);
+        this.fitnessByGen.push(fitnesses);
     }
 
     getSpeciation() {
         return this.speciation;
+    }
+
+    getFitnesses() {
+        return this.fitnessByGen;
     }
 }

@@ -23,7 +23,7 @@ text {
     stroke: #000;
     shape-rendering: crispEdges;
 }
-  
+
 .browser text {
     text-anchor: end;
 }
