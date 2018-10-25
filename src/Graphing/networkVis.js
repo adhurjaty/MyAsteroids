@@ -54,12 +54,9 @@ export function graphNN(data) {
     // autogenerate links
     var links = [];
     nodes.map(function(d, i) {
-        for (var n = 0; n < nodes.length; n++) {
-            var offset = offsetLookup[nodes[n].layer - 1];
-            if (d.connections.indexOf(n - offset) > -1) {
-                links.push({"source": i, "target": n, "value": 1})
-            }
-        }
+        d.connections.forEach(conn => {
+            links.push({"source": i, "target": conn, "value": 1});
+        });
     }).filter(function(d) { return typeof d !== "undefined"; });
 
     // draw links

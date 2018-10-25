@@ -31,7 +31,7 @@ export function makeFintessChart(dataset) {
      */
 
     chartObj.data = dataset;
-    chartObj.margin = {top: 15, right: 0, bottom: 30, left: 50};
+    chartObj.margin = {top: 15, right: 60, bottom: 30, left: 50};
     chartObj.width = CANVAS_WIDTH - chartObj.margin.left - chartObj.margin.right;
     chartObj.height = SVG_HEIGHT - chartObj.margin.top - chartObj.margin.bottom;
 
@@ -212,7 +212,7 @@ export function makeFintessChart(dataset) {
             }
 
             focus.select(".focus.line").attr("transform", "translate(" + chartObj.xScale(chartObj.xFunct(d)) + ")").attr("y1", minY);
-            focus.select(".focus.year").text("Year: " + chartObj.xFormatter(chartObj.xFunct(d)));
+            focus.select(".focus.year").text("Generation: " + chartObj.xFormatter(chartObj.xFunct(d)));
         }
 
     };

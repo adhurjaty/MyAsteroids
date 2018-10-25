@@ -316,7 +316,7 @@ export class Genome {
     addCrossoverGenes(geneHistory) {
         var maxGeneId = Math.max(...geneHistory.map(gh => [gh.inGeneId, gh.outGeneId]).flat())
         for(var i = this.genes.length; i < maxGeneId + 1; i++) {
-            this.genes.push(new Gene(1));
+            this.genes.push(new SigmoidGene(1));
         }
     }
 
@@ -329,11 +329,12 @@ export class Genome {
     }
 
     toJson() {
+        var self = this;
         var jsonObj = {nodes: []};
         var layers = this.getAllLayers();
         for(var i = 0; i < layers.length; i++) {
             for(var j = 0; j < layers[i].length; j++) {
-                var connections = this.connectionsToLayerIdx(layers[i][j].connections, i+1);
+                var connections = this.connectionsToJsonGeneIdx(layers[i][j].connections);
                 var label = this.genes.indexOf(layers[i][j]);
                 jsonObj.nodes.push({
                     layer: i + 1,
@@ -342,19 +343,20 @@ export class Genome {
                 });
             }
         }
+        debugger;
         return jsonObj;
     }
 
-    connectionsToLayerIdx(connections, layerIdx) {
+    connectionsToJsonGeneIdx(connections) {
         var layers = this.getAllLayers();
-        return connections.map((connGene) => {
-            for(var i = layerIdx; i < layers.length; i++) {
-                for(var j = 0; j < layers[i].length; j++) {
-                    var connGeneId = this.genes.indexOf(connGene.gene);
-                    var geneId = this.genes.indexOf(layers[i][j]);
-                    if(connGeneId == geneId) {
-                        return i;
-                    }
+        return connections.map(conn => {
+            for(var i = 0; i < layers.length; i++) {
+                var layerIdx = layers[i].indexOf(conn.gene)
+                if(layerIdx > -1) {
+                    var nodeSum = Array(i).fill().reduce((sum, _, x) => {
+                        return sum + layers[x].length;
+                    }, 0);
+                    return nodeSum + layerIdx;
                 }
             }
         });
