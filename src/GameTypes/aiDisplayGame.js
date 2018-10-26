@@ -47,6 +47,7 @@ export class AiDisplayGame extends DisplayGame {
 
         var vecCalc = new VectorCalculator(this.getState());
         var vector = vecCalc.getVector();
+        var maxVel = .1;
 
         for(var i = 0; i < 16; i++) {
             var angle = i * Math.PI / 8;

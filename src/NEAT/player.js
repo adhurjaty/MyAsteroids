@@ -1,9 +1,8 @@
-import { VectorCalculator } from "../vectorCalculator";
+import { VectorCalculator, INPUT_NEURONS } from "../vectorCalculator";
 import { Genome } from "./genome";
 import { MOVE_ENUM } from "../GameTypes/game"
 
-export const INPUT_NEURONS = 33,
-             OUTPUT_NEURONS = 5,
+export const OUTPUT_NEURONS = 5,
              ACTION_THRESHOLD = .7;
 const MOVE_ARR = [MOVE_ENUM.UP, MOVE_ENUM.DOWN, MOVE_ENUM.LEFT, MOVE_ENUM.RIGHT, MOVE_ENUM.FIRE];
 

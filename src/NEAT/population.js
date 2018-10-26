@@ -35,6 +35,7 @@ export class Population {
         this.initGlobalInnoHistory(this.players[0].brain);
         this.speciation = [];
         this.fitnessByGen = [];
+        this.bestPlayer = null;
     }
 
     initPlayers() {
@@ -68,6 +69,12 @@ export class Population {
     updatePopulation() {
         this.writeSpeciesResults();
         this.sortSpecies();
+
+        if(this.bestPlayer == null ||
+            this.species[0].bestPlayer.fitness > this.bestPlayer.fitness) {
+            this.bestPlayer = this.species[0].bestPlayer;
+        }
+
         this.greatDying();
         this.reproduce();
     }
@@ -163,6 +170,7 @@ export class Population {
 
     getBestPlayer() {
         return arrayMax(this.getAllPlayers(), (p) => p.fitness);
+        // return this.bestPlayer;
     }
 
     getAllPlayers() {

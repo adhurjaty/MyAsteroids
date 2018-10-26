@@ -24,7 +24,7 @@ window.onload = () => {
         // game.start();
 
         var pop = new Population(100);
-        pop.train(30);
+        pop.train(100);
         var player = pop.getBestPlayer();
 
         var nn = player.brain.toJson();
@@ -34,7 +34,6 @@ window.onload = () => {
         speciationChart(speciation);
 
         var fitnesses = pop.getFitnesses();
-        debugger;
         var fc = makeFintessChart(fitnesses);
         fc.bind('#fitness-chart');
         fc.render();

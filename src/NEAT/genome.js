@@ -213,7 +213,10 @@ export class Genome {
         var conn2 = new ConnectionGene(this.genes.length, connGene.outGeneId, connGene.weight, -1);
         Population.setInnovationNumber(conn2);
 
-        this.geneHistory = this.geneHistory.concat([conn1, conn2]);
+        var biasConn = new ConnectionGene(this.inputs, this.genes.length, 0, -1);
+        Population.setInnovationNumber(biasConn);
+
+        this.geneHistory = this.geneHistory.concat([conn1, conn2, biasConn]);
 
         this.genes.push(gene);
     }
@@ -343,7 +346,6 @@ export class Genome {
                 });
             }
         }
-        debugger;
         return jsonObj;
     }
 
