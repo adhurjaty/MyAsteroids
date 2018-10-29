@@ -60,15 +60,22 @@ export class Genome {
         this.setOutputLayer();
     }
 
-    assignGeneLayer(gene, layerIdx) {
+    assignGeneLayer(gene, layerIdx, curPath) {
+        if(curPath == null) {
+            curPath = []
+        }
         layerIdx = layerIdx | 0;
         gene.layer = Math.max(gene.layer, layerIdx + 1);
+        var geneId = this.genes.indexOf(gene);
+        if(curPath.indexOf(geneId) > -1) {
+            debugger;
+        }
         if(gene.connections.length == 0) {
             return;
         }
 
         for(var i = 0; i < gene.connections.length; i++) {
-            this.assignGeneLayer(gene.connections[i].gene, gene.layer);
+            this.assignGeneLayer(gene.connections[i].gene, gene.layer, curPath.concat([geneId]));
         }
     }
 
@@ -181,6 +188,10 @@ export class Genome {
             var outGene = layers[outLayerIdx][outGeneIdx];
             var inGeneId = this.genes.indexOf(inGene);
             var outGeneId = this.genes.indexOf(outGene);
+            if(this.geneHistory.find(x => x.inGeneId == outGeneId 
+                && x.outGeneId == inGeneId) != null) {
+                debugger;
+            }
             if(!this.isConnected(inGeneId, outGeneId)) {
                 return [inGeneId, outGeneId];
             }
@@ -193,7 +204,8 @@ export class Genome {
     isConnected(inGeneId, outGeneId) {
         for(var i = 0; i < this.geneHistory.length; i++) {
             var cg = this.geneHistory[i];
-            if(cg.inGeneId == inGeneId && cg.outGeneId == outGeneId) {
+            if((cg.inGeneId == inGeneId && cg.outGeneId == outGeneId)
+                || (cg.outGeneId == inGeneId && cg.inGeneId == outGeneId)) {
                 return true;
             }
         }
@@ -295,6 +307,7 @@ export class Genome {
     }
 
     crossover(otherGenome) {
+        var self = this;
         var edm = this.getExcessDisjointMatching(otherGenome);
         var newGeneHistory = edm.matching.map((m) => {
             if(Math.random() < .5) {
@@ -306,7 +319,8 @@ export class Genome {
         newGeneHistory = newGeneHistory.concat(edm.disjoint)
                                        .concat(edm.otherDisjoint)
                                        .concat(edm.excess)
-                                       .concat(edm.otherExcess);
+                                       .concat(edm.otherExcess)
+                                       .filter(gh => self.isValidConnection(gh));
         newGeneHistory.sort((a, b) => a.innovationNumber - b.innovationNumber);
 
         this.addCrossoverGenes(newGeneHistory);
@@ -314,6 +328,16 @@ export class Genome {
         var newGenome = this.clone();
         newGenome.geneHistory = newGeneHistory.map(g => cloneObject(g));
         return newGenome;
+    }
+
+    isValidConnection(gh) {
+        if(gh.inGeneId >= this.genes.length || gh.outGeneId >= this.genes.length) {
+            return true;
+        }
+        var inGene = this.genes[gh.inGeneId];
+        var outGene = this.genes[gh.outGeneId];
+
+        return outGene.layer > inGene.layer;
     }
 
     addCrossoverGenes(geneHistory) {
