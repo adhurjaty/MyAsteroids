@@ -50,14 +50,14 @@ export class Population {
         Population.innovationHistory = genome.geneHistory.slice(0);
     }
 
-    train(generations, showProgress) {
-        var progInterval = generations / 100;
+    train(generations) { //}, showProgress) {
+        var progInterval = Math.max(generations / 100, 1);
         for(var i = 0; i < generations; i++) {
             this.runGeneration();
-            if(i % progInterval == 0) {
+            // if(i % progInterval == 0) {
                 this.updateGraphs(i);
-                showProgress(this);
-            }
+                // showProgress(this);
+            // }
         }
     }
 

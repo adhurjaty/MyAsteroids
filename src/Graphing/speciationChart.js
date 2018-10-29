@@ -35,13 +35,16 @@ export function speciationChart(data) {
         .values(function(d) { return d.values; });
 
     
-    var svg = d3.select("#speciation-chart")
+    var svg = d3.select("#speciation-chart").attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    svg.selectAll('*').remoe();
-    svg.attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    // svg.selectAll('*').remove();
+    // svg.attr("width", width + margin.left + margin.right)
+    //     .attr("height", height + margin.top + margin.bottom)
+    //     .append("g")
+    //     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     data = addEmptyChartItems(data);
 

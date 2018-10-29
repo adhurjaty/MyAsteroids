@@ -22,30 +22,41 @@ function showProgress(population) {
 
 window.onload = () => {
     var canvas = document.getElementById('game-canvas');
-
+    canvas.style.display = 'none';
 
     if(canvas.getContext) {
-        
-        var pop = new Population(100);
-        pop.train(500, showProgress);
+        var pop = null;
+        // (async () => {
+            pop = new Population(100);
+            pop.train(10);//, showProgress);
+        // })().then(() => {
+            canvas.setAttribute('width', CANVAS_WIDTH);
+            canvas.setAttribute('height', CANVAS_HEIGHT);
+            canvas.style.display = 'block';
+    
+            var context = canvas.getContext('2d');
+    
+            context.fillStyle = 'rgb(255, 255, 255)';
+            context.strokeStyle = 'rgb(255, 255, 255)';
+    
+            var speciation = pop.getSpeciation();
+            speciationChart(speciation);
 
-        canvas.setAttribute('width', CANVAS_WIDTH);
-        canvas.setAttribute('height', CANVAS_HEIGHT);
+            var fitnesses = pop.getFitnesses();
+            var fc = makeFintessChart(fitnesses);
+            fc.bind('#fitness-chart');
+            fc.render();
+            // var game = new HumanGame(canvas);
+            // game.start();
+    
+            var player = pop.getBestPlayer();
+    
+            var nn = player.brain.toJson();
+            graphNN(nn);
+    
+            var game = new AiDisplayGame(canvas, player);
+            game.start();
+        //});
 
-        var context = canvas.getContext('2d');
-
-        context.fillStyle = 'rgb(255, 255, 255)';
-        context.strokeStyle = 'rgb(255, 255, 255)';
-
-        // var game = new HumanGame(canvas);
-        // game.start();
-
-        var player = pop.getBestPlayer();
-
-        var nn = player.brain.toJson();
-        graphNN(nn);
-
-        var game = new AiDisplayGame(canvas, player);
-        game.start();
     }
 }

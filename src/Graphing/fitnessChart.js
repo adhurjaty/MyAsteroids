@@ -107,7 +107,6 @@ export function makeFintessChart(dataset) {
     chartObj.update_svg_size = function () {
 
         chartObj.width = parseInt(chartObj.chartDiv.style("width"), 10) - (chartObj.margin.left + chartObj.margin.right);
-
         // chartObj.height = parseInt(chartObj.chartDiv.style("height"), 10) - (chartObj.margin.top + chartObj.margin.bottom);
 
         /* Update the range of the scale with new width/height */
@@ -137,11 +136,15 @@ export function makeFintessChart(dataset) {
     };
 
     chartObj.bind = function (selector) {
-        chartObj.mainDiv = d3.select(selector);
-        // Add all the divs to make it centered and responsive
-        chartObj.mainDiv.append("div").attr("class", "inner-wrapper").append("div").attr("class", "outer-box").append("div").attr("class", "inner-box");
+        chartObj.mainDiv = d3.select(selector).append("div")
+                                .attr("class", "inner-wrapper")
+                                .append("div")
+                                .attr("class", "outer-box")
+                                .append("div")
+                                .attr("class", "inner-box");
         var chartSelector = selector + " .inner-box";
         chartObj.chartDiv = d3.select(chartSelector);
+
         d3.select(window).on('resize.' + chartSelector, chartObj.update_svg_size);
         // chartObj.update_svg_size();
         return chartObj;
@@ -151,11 +154,11 @@ export function makeFintessChart(dataset) {
     chartObj.render = function () {
         //Create SVG element
         chartObj.svg = chartObj.chartDiv.append("svg")
-        chartObj.svg.selectAll('*').remoe();
-        chartObj.svg.attr("class", "chart-area")
-                    .attr("width", chartObj.width + (chartObj.margin.left + chartObj.margin.right))
-                    .attr("height", chartObj.height + (chartObj.margin.top + chartObj.margin.bottom))
-                    .append("g").attr("transform", "translate(" + chartObj.margin.left + "," + chartObj.margin.top + ")");
+                            .attr("class", "chart-area")
+                            .attr("width", chartObj.width + (chartObj.margin.left + chartObj.margin.right))
+                            .attr("height", chartObj.height + (chartObj.margin.top + chartObj.margin.bottom))
+                            .append("g")
+                            .attr("transform", "translate(" + chartObj.margin.left + "," + chartObj.margin.top + ")");
 
         // Draw Lines
         for (var y  in yObjs) {
@@ -165,12 +168,29 @@ export function makeFintessChart(dataset) {
                 focus.transition().delay(700).style("display", "none");
             }).on("mousemove", mousemove);
         }
-        
 
         // Draw Axis
-        chartObj.svg.append("g").attr("class", "x axis").attr("transform", "translate(0," + chartObj.height + ")").call(chartObj.xAxis).append("text").attr("class", "label").attr("x", chartObj.width / 2).attr("y", 30).style("text-anchor", "middle").text(chartObj.xAxisLable);
+        chartObj.svg.append("g")
+                    .attr("class", "x axis")
+                    .attr("transform", "translate(0," + chartObj.height + ")")
+                    .call(chartObj.xAxis)
+                    .append("text")
+                    .attr("class", "label")
+                    .attr("x", chartObj.width / 2)
+                    .attr("y", 30).style("text-anchor", "middle")
+                    .text(chartObj.xAxisLable);
 
-        chartObj.svg.append("g").attr("class", "y axis").call(chartObj.yAxis).append("text").attr("class", "label").attr("transform", "rotate(-90)").attr("y", -42).attr("x", -chartObj.height / 2).attr("dy", ".71em").style("text-anchor", "middle").text(chartObj.yAxisLable);
+        chartObj.svg.append("g")
+                    .attr("class", "y axis")
+                    .call(chartObj.yAxis)
+                    .append("text")
+                    .attr("class", "label")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", -42)
+                    .attr("x", -chartObj.height / 2)
+                    .attr("dy", ".71em")
+                    .style("text-anchor", "middle")
+                    .text(chartObj.yAxisLable);
 
         //Draw tooltips
         var focus = chartObj.svg.append("g").attr("class", "focus").style("display", "none");
