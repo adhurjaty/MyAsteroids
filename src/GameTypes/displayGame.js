@@ -4,7 +4,7 @@ import { SHOT_DISTANCE, VectorCalculator } from "../vectorCalculator";
 import { PADDING } from "./game";
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from "../app";
 
-const GAME_RATE_INTERVAL = 20;
+const GAME_RATE_INTERVAL = 10;
 
 export class DisplayGame extends Game {
     constructor(canvas) {
@@ -33,6 +33,7 @@ export class DisplayGame extends Game {
         this.drawAsteroids();
         this.drawScore();
 
+        // for debugging
         this.drawVision();
     }
 
@@ -114,6 +115,7 @@ export class DisplayGame extends Game {
         var vecCalc = new VectorCalculator(this.getState());
         var vector = vecCalc.getVector();
         var maxVel = .1;
+        var maxDanger = -Infinity;
 
         for(var i = 0; i < 16; i++) {
             var angle = i * Math.PI / 8;
@@ -123,12 +125,21 @@ export class DisplayGame extends Game {
             var canvasEnd = this.convertToDrawCoords(endpoint);
 
             if(vector[2*i] > 0) {
+                var danger = vector[2*i] * vector[2*i+1] * 1000;
+                if(danger > maxDanger) {
+                    maxDanger = danger;
+                }
+                if(maxDanger == 0) {
+                    debugger;
+                }
                 this.ctx.lineWidth = 3;
             } else {
                 this.ctx.lineWidth = 1;
             }
+
             this.drawVisionLine(canvasStart, canvasEnd);
         }
+        this.drawDanger(maxDanger);
         this.ctx.lineWidth = 1;
     }
 
@@ -171,5 +182,10 @@ export class DisplayGame extends Game {
             }
         }
         this.ctx.stroke();
+    }
+
+    drawDanger(danger) {
+        this.ctx.font = '18px arial';
+        this.ctx.fillText(`Danger: ${danger}`, 100, 20);
     }
 }

@@ -1,6 +1,6 @@
 import { Point, vectorCycle } from "./util";
 
-export const SHOT_DISTANCE = 710,  // approximate distance a bullet can travel, so no point looking further
+export const SHOT_DISTANCE = 210,  // approximate distance a bullet can travel, so no point looking further
              INPUT_NEURONS = 33;
 
 export class VectorCalculator {
@@ -49,7 +49,7 @@ export class VectorCalculator {
                 output.push({
                     position: aPos.add(new Point(self.gameState.width * vec[0],
                         self.gameState.height * vec[1])).rotate(-shipTheta),
-                    velocity: aVel,
+                    velocity: aVel.rotate(-shipTheta),
                     radius: asteroid.radius
                 });
             }

@@ -47,7 +47,7 @@ export function makeFintessChart(dataset) {
 
 // Object instead of array
     chartObj.yFuncts = [];
-    for (var y  in yObjs) {
+    for (var y in yObjs) {
         yObjs[y].name = y;
         yObjs[y].yFunct = getYFn(yObjs[y].column); //Need this  list for the ymax function
         chartObj.yFuncts.push(yObjs[y].yFunct);
@@ -99,9 +99,6 @@ export function makeFintessChart(dataset) {
             return chartObj.xScale(chartObj.xFunct(d));
         }).y(getYScaleFn(yObj));
     }
-    
-
-    chartObj.svg;
 
 // Change chart size according to window size
     chartObj.update_svg_size = function () {
@@ -202,14 +199,14 @@ export function makeFintessChart(dataset) {
             yObjs[y].tooltip.append("text").attr("x", 9).attr("dy", ".35em");
         }
 
-        // Year label
+        // Gengeration label
         focus.append("text").attr("class", "focus year").attr("x", 9).attr("y", 7);
         // Focus line
         focus.append("line").attr("class", "focus line").attr("y1", 0).attr("y2", chartObj.height);
 
         //Draw legend
         var legend = chartObj.mainDiv.append('div').attr("class", "legend");
-        for (var y  in yObjs) {
+        for (var y in yObjs) {
             var series = legend.append('div');
             series.append('div').attr("class", "series-marker").style("background-color", color(y));
             series.append('p').text(y);

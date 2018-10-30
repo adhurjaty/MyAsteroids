@@ -110,7 +110,7 @@ export class Population {
     }
 
     extinctSpecies() {
-        this.extinctStaleSpecies();
+        // this.extinctStaleSpecies();
         this.extinctUnderperformers();
     }
 
@@ -198,7 +198,8 @@ export class Population {
             generation: generation
         };
         var fitnesses = {
-            generation: generation
+            generation: generation,
+            ' avg': this.getAvgFitnessSum() / this.species.length
         };
         for(var i = 0; i < this.species.length; i++) {
             spec[this.species[i].id] = this.species[i].players.length;

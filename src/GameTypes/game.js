@@ -83,9 +83,10 @@ export class Game {
 
     initAsteroids() {
         this.asteroids = [];
-        for (let i = 0; i < 2; i++) {
-            this.spawnAsteroid();
-        }
+        this.spawnAsteroid();
+        // for (let i = 0; i < 2; i++) {
+        //     this.spawnAsteroid();
+        // }
     }
 
     spawnAsteroid() {
@@ -121,10 +122,10 @@ export class Game {
 
     update() {
         this.counter++;
-        if(this.counter >= this.lastAsteroidSpawnTime + ASTEROID_SPAWN_TIME) {
-            this.spawnAsteroid();
-            this.lastAsteroidSpawnTime = this.counter;
-        }
+        // if(this.counter >= this.lastAsteroidSpawnTime + ASTEROID_SPAWN_TIME) {
+        //     this.spawnAsteroid();
+        //     this.lastAsteroidSpawnTime = this.counter;
+        // }
 
         this.continueActions();
 
