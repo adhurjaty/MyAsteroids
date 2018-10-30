@@ -121,10 +121,10 @@ export class Game {
 
     update() {
         this.counter++;
-        // if(this.counter >= this.lastAsteroidSpawnTime + ASTEROID_SPAWN_TIME) {
-        //     this.spawnAsteroid();
-        //     this.lastAsteroidSpawnTime = this.counter;
-        // }
+        if(this.counter >= this.lastAsteroidSpawnTime + ASTEROID_SPAWN_TIME) {
+            this.spawnAsteroid();
+            this.lastAsteroidSpawnTime = this.counter;
+        }
 
         this.continueActions();
 

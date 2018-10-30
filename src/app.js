@@ -50,13 +50,13 @@ window.onload = () => {
         canvas.setAttribute('width', CANVAS_WIDTH);
         canvas.setAttribute('height', CANVAS_HEIGHT);
         
-        var context = canvas.getContext('2d');
-        context.fillStyle = 'rgb(255, 255, 255)';
-        context.strokeStyle = 'rgb(255, 255, 255)';
-        
-        // canvas.style.display = 'none';
-        // var pop = new Population(100);
-        // pop.train(10, showProgress, trainingComplete);
+        // var context = canvas.getContext('2d');
+        // context.fillStyle = 'rgb(255, 255, 255)';
+        // context.strokeStyle = 'rgb(255, 255, 255)';
+
+        canvas.style.display = 'none';
+        var pop = new Population(100);
+        pop.train(10, showProgress, trainingComplete);
 
         var game = new HumanGame(canvas);
         game.start();

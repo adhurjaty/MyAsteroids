@@ -1,7 +1,6 @@
 import { Point, vectorCycle } from "./util";
-import { GameObject } from "./Components/gameObject";
 
-export const SHOT_DISTANCE = 800,  // approximate distance a bullet can travel, so no point looking further
+export const SHOT_DISTANCE = 710,  // approximate distance a bullet can travel, so no point looking further
              INPUT_NEURONS = 33;
 
 export class VectorCalculator {
@@ -42,14 +41,14 @@ export class VectorCalculator {
         var velocity = this.gameState.velocity;
         return asteroids.map((asteroid) => {
             var shipVel = velocity.rotate(shipTheta);
-            var aPos = GameObject.wrapSpace(asteroid.position.sub(shipPos)).rotate(-shipTheta);
+            var aPos = asteroid.position.sub(shipPos);
             var aVel = asteroid.velocity.sub(shipVel);
             var output = [];
             // duplicate the worlds so the player can see across wrap-around
             for(var vec of vectorCycle()) {
                 output.push({
                     position: aPos.add(new Point(self.gameState.width * vec[0],
-                        self.gameState.height * vec[1])),
+                        self.gameState.height * vec[1])).rotate(-shipTheta),
                     velocity: aVel,
                     radius: asteroid.radius
                 });

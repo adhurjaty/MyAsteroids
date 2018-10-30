@@ -145,17 +145,17 @@ export class DisplayGame extends Game {
                 newStart.y = start.interpolateY(end, -2 * PADDING);
                 newEnd.x = CANVAS_WIDTH + end.x + 2 * PADDING
             }
-            if(end.x > CANVAS_WIDTH + 2 * PADDING) {
+            else if(end.x > CANVAS_WIDTH + 2 * PADDING) {
                 newStart.x = 0;
                 newStart.y = start.interpolateY(end, CANVAS_WIDTH + 2 * PADDING);
                 newEnd.x = end.x - (CANVAS_WIDTH + 2 * PADDING);
             }
-            if(end.y < -2 * PADDING) {
+            else if(end.y < -2 * PADDING) {
                 newStart.y = CANVAS_HEIGHT;
                 newStart.x = start.interpolateX(end, -2 * PADDING);
                 newEnd.y = CANVAS_HEIGHT + end.y + 2 * PADDING;
             }
-            if(end.y > CANVAS_HEIGHT + 2 * PADDING) {
+            else if(end.y > CANVAS_HEIGHT + 2 * PADDING) {
                 newStart.y = 0;
                 newStart.x = start.interpolateX(end, CANVAS_HEIGHT + 2 * PADDING);
                 newEnd.y = end.y - (CANVAS_HEIGHT + 2 * PADDING);
