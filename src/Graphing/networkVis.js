@@ -4,14 +4,14 @@ import { CANVAS_WIDTH } from '../app'
 const SVG_HEIGHT = 600,
       NODE_SIZE = 10;
 
-export function graphNN(data) {
+export function graphNN(data, selector) {
     var width = CANVAS_WIDTH,
     height = SVG_HEIGHT,
     nodeSize = NODE_SIZE;
 
     var color = d3.scale.category20();
 
-    var svg = d3.select("#nn-visualizer")
+    var svg = d3.select(selector)
         .attr("width", width)
         .attr("height", height);
 

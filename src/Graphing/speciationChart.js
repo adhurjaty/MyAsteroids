@@ -6,7 +6,7 @@ import { addEmptyChartItems } from '../util';
 
 const SVG_HEIGHT = 600;
 
-export function speciationChart(data) {
+export function speciationChart(data, chartSelector) {
     var margin = {top: 20, right: 20, bottom: 30, left: 50},
         width = CANVAS_WIDTH - margin.left - margin.right,
         height = SVG_HEIGHT - margin.top - margin.bottom;
@@ -35,7 +35,7 @@ export function speciationChart(data) {
         .values(function(d) { return d.values; });
 
     
-    var svg = d3.select("#speciation-chart").attr("width", width + margin.left + margin.right)
+    var svg = d3.select(chartSelector).attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
                 .append("g")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");

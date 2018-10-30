@@ -50,15 +50,32 @@ export class Population {
         Population.innovationHistory = genome.geneHistory.slice(0);
     }
 
-    train(generations) { //}, showProgress) {
+    train(generations, showProgress, trainingComplete) {
         var progInterval = Math.max(generations / 100, 1);
-        for(var i = 0; i < generations; i++) {
+
+        function trainGeneration(i) {
+            if(i == generations) {
+                trainingComplete(this);
+                return;
+            }
             this.runGeneration();
-            // if(i % progInterval == 0) {
+            if(i % progInterval == 0) {
                 this.updateGraphs(i);
-                // showProgress(this);
-            // }
+                showProgress(this);
+            }
+            var fn = trainGeneration.bind(this, i + 1);
+            window.requestAnimationFrame(fn);
         }
+
+        var trainFn = trainGeneration.bind(this, 0);
+        window.requestAnimationFrame(trainFn);
+        // for(var i = 0; i < generations; i++) {
+        //     this.runGeneration();
+        //     if(i % progInterval == 0) {
+        //         this.updateGraphs(i);
+        //         showProgress(this);
+        //     }
+        // }
     }
 
     runGeneration() {
