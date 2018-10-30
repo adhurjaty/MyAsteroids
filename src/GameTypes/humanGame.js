@@ -15,6 +15,9 @@ export class HumanGame extends DisplayGame {
     }
 
     keyDownHandler(self, e) {
+        if([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+            e.preventDefault();
+        }
         if(self.gameOver && KEY_TO_MOVE_MAP[e.keyCode] == MOVE_ENUM.FIRE) {
             self.initGame();
             super.start();

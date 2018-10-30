@@ -45,6 +45,22 @@ export class Point {
         return this.x * other.x + this.y * other.y;
     }
 
+    equals(other) {
+        return this.x == other.x && this.y == other.y;
+    }
+
+    interpolateX(other, y) {
+        return this._interpolate(other, (a) => a.x, (b) => b.y, y);
+    }
+
+    interpolateY(other, x) {
+        return this._interpolate(other, (a) => a.y, (b) => b.x, x);
+    }
+
+    _interpolate(other, afn, bfn, val) {
+        return (afn(other) - afn(this)) * (val - bfn(this)) / (bfn(other) - bfn(this)) + afn(this);
+    }
+
     toArray() {
         return [this.x, this.y];
     }
@@ -145,4 +161,12 @@ export function addEmptyChartItems(data) {
         });
         return d;
     })
+}
+
+export function* vectorCycle() {
+    for (var i = -1; i <= 1; i++) {
+        for(var j = -1; j <= 1; j++) {
+            yield [i, j];
+        }   
+    }
 }

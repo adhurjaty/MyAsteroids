@@ -1,7 +1,10 @@
 import { Game } from "./game";
 import { Point } from "../util";
+import { SHOT_DISTANCE, VectorCalculator } from "../vectorCalculator";
+import { PADDING } from "./game";
+import { CANVAS_WIDTH, CANVAS_HEIGHT } from "../app";
 
-const GAME_RATE_INTERVAL = 10;
+const GAME_RATE_INTERVAL = 20;
 
 export class DisplayGame extends Game {
     constructor(canvas) {
@@ -29,6 +32,8 @@ export class DisplayGame extends Game {
         this.drawBullets();
         this.drawAsteroids();
         this.drawScore();
+
+        this.drawVision();
     }
 
     drawShip() {
@@ -98,6 +103,73 @@ export class DisplayGame extends Game {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.font = '48px arial';
         this.ctx.fillText('GAME OVER', this.canvas.width / 2 - 150, this.canvas.height / 2 - 10);
+        this.ctx.font = '24px arial';
+        this.ctx.fillText(`SCORE: ${this.score}`, this.canvas.width / 2 - 60, this.canvas.height / 2 + 50);
     }
 
+    // for debugging purposes
+    drawVision() {
+        var canvasStart = this.convertToDrawCoords(this.ship.cp);
+
+        var vecCalc = new VectorCalculator(this.getState());
+        var vector = vecCalc.getVector();
+        var maxVel = .1;
+
+        for(var i = 0; i < 16; i++) {
+            var angle = i * Math.PI / 8;
+            var absAngle = (angle + this.ship.theta) % (2 * Math.PI);
+            var endpoint = this.ship.cp.add(Point.fromPolar(SHOT_DISTANCE, absAngle));
+
+            var canvasEnd = this.convertToDrawCoords(endpoint);
+
+            if(vector[2*i] > 0) {
+                this.ctx.lineWidth = 3;
+            } else {
+                this.ctx.lineWidth = 1;
+            }
+            this.drawVisionLine(canvasStart, canvasEnd);
+        }
+        this.ctx.lineWidth = 1;
+    }
+
+    drawVisionLine(start, end) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(...start.toArray());
+        this.ctx.lineTo(...end.toArray());
+
+        while(true) {
+            var newStart = new Point(...start.toArray());
+            var newEnd = new Point(...end.toArray());
+            if(end.x < -2 * PADDING) {
+                newStart.x = CANVAS_WIDTH;
+                newStart.y = start.interpolateY(end, -2 * PADDING);
+                newEnd.x = CANVAS_WIDTH + end.x + 2 * PADDING
+            }
+            if(end.x > CANVAS_WIDTH + 2 * PADDING) {
+                newStart.x = 0;
+                newStart.y = start.interpolateY(end, CANVAS_WIDTH + 2 * PADDING);
+                newEnd.x = end.x - (CANVAS_WIDTH + 2 * PADDING);
+            }
+            if(end.y < -2 * PADDING) {
+                newStart.y = CANVAS_HEIGHT;
+                newStart.x = start.interpolateX(end, -2 * PADDING);
+                newEnd.y = CANVAS_HEIGHT + end.y + 2 * PADDING;
+            }
+            if(end.y > CANVAS_HEIGHT + 2 * PADDING) {
+                newStart.y = 0;
+                newStart.x = start.interpolateX(end, CANVAS_HEIGHT + 2 * PADDING);
+                newEnd.y = end.y - (CANVAS_HEIGHT + 2 * PADDING);
+            }
+
+            if(!start.equals(newStart)) {
+                start = newStart;
+                end = newEnd;
+                this.ctx.moveTo(...newStart.toArray());
+                this.ctx.lineTo(...newEnd.toArray());
+            } else {
+                break;
+            }
+        }
+        this.ctx.stroke();
+    }
 }

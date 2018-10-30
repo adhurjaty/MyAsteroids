@@ -32,17 +32,9 @@ function showProgress(population) {
 }
 
 function trainingComplete(population) {
-    canvas.setAttribute('width', CANVAS_WIDTH);
-    canvas.setAttribute('height', CANVAS_HEIGHT);
     canvas.style.display = 'block';
-
-    var context = canvas.getContext('2d');
-
-    context.fillStyle = 'rgb(255, 255, 255)';
-    context.strokeStyle = 'rgb(255, 255, 255)';
-
+    
     var player = population.getBestPlayer();
-
     var nn = player.brain.toJson();
     graphNN(nn, '#nn-visualizer');
     document.getElementById('nn-visualizer').style.display = 'block';
@@ -55,10 +47,18 @@ window.onload = () => {
     canvas = document.getElementById('game-canvas');
 
     if(canvas.getContext) {
-        var pop = new Population(100);
-        pop.train(100, showProgress, trainingComplete);
+        canvas.setAttribute('width', CANVAS_WIDTH);
+        canvas.setAttribute('height', CANVAS_HEIGHT);
+        
+        var context = canvas.getContext('2d');
+        context.fillStyle = 'rgb(255, 255, 255)';
+        context.strokeStyle = 'rgb(255, 255, 255)';
+        
+        // canvas.style.display = 'none';
+        // var pop = new Population(100);
+        // pop.train(10, showProgress, trainingComplete);
 
-        // var game = new HumanGame(canvas);
-        // game.start();
+        var game = new HumanGame(canvas);
+        game.start();
     }
 }

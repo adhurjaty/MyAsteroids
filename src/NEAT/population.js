@@ -69,13 +69,6 @@ export class Population {
 
         var trainFn = trainGeneration.bind(this, 0);
         window.requestAnimationFrame(trainFn);
-        // for(var i = 0; i < generations; i++) {
-        //     this.runGeneration();
-        //     if(i % progInterval == 0) {
-        //         this.updateGraphs(i);
-        //         showProgress(this);
-        //     }
-        // }
     }
 
     runGeneration() {

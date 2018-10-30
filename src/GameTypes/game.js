@@ -4,8 +4,8 @@ import { Bullet } from "../Components/bullet";
 import { Asteroid } from "../Components/asteroid";
 import { GameObject } from "../Components/gameObject";
 
-const PADDING = 50,
-      BULLET_COOLOFF = 15,    // game tick intervals
+export const PADDING = 50;
+const BULLET_COOLOFF = 15,    // game tick intervals
       SPAWN_DISTANCE = 120,
       ASTEROID_SPAWN_TIME = 500,    // game tick intervals
       ASTEROID_HIT_SCORE = [5, 3, 1];
@@ -121,10 +121,10 @@ export class Game {
 
     update() {
         this.counter++;
-        if(this.counter >= this.lastAsteroidSpawnTime + ASTEROID_SPAWN_TIME) {
-            this.spawnAsteroid();
-            this.lastAsteroidSpawnTime = this.counter;
-        }
+        // if(this.counter >= this.lastAsteroidSpawnTime + ASTEROID_SPAWN_TIME) {
+        //     this.spawnAsteroid();
+        //     this.lastAsteroidSpawnTime = this.counter;
+        // }
 
         this.continueActions();
 
