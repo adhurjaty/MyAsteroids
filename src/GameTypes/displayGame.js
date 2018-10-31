@@ -34,7 +34,7 @@ export class DisplayGame extends Game {
         this.drawScore();
 
         // for debugging
-        this.drawVision();
+        // this.drawVision();
     }
 
     drawShip() {
@@ -129,9 +129,6 @@ export class DisplayGame extends Game {
                 if(danger > maxDanger) {
                     maxDanger = danger;
                 }
-                if(maxDanger == 0) {
-                    debugger;
-                }
                 this.ctx.lineWidth = 3;
             } else {
                 this.ctx.lineWidth = 1;
@@ -185,6 +182,7 @@ export class DisplayGame extends Game {
     }
 
     drawDanger(danger) {
+        danger = Math.round(100 * danger) / 100;
         this.ctx.font = '18px arial';
         this.ctx.fillText(`Danger: ${danger}`, 100, 20);
     }

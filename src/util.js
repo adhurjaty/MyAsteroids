@@ -49,6 +49,19 @@ export class Point {
         return this.x == other.x && this.y == other.y;
     }
 
+    linspace(other, num) {
+        var dist = (other.x - this.x) / num;
+        var pnts = [];
+
+        for(var i = 0; i <= num; i++) {
+            var x = this.x + dist * i;
+            var y = this.interpolateY(other, x);
+            pnts.push(new Point(x, y));
+        }
+
+        return pnts;
+    }
+
     interpolateX(other, y) {
         return this._interpolate(other, (a) => a.x, (b) => b.y, y);
     }

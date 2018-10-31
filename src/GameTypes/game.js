@@ -83,10 +83,9 @@ export class Game {
 
     initAsteroids() {
         this.asteroids = [];
-        this.spawnAsteroid();
-        // for (let i = 0; i < 2; i++) {
-        //     this.spawnAsteroid();
-        // }
+        for (let i = 0; i < 2; i++) {
+            this.spawnAsteroid();
+        }
     }
 
     spawnAsteroid() {
@@ -122,10 +121,10 @@ export class Game {
 
     update() {
         this.counter++;
-        // if(this.counter >= this.lastAsteroidSpawnTime + ASTEROID_SPAWN_TIME) {
-        //     this.spawnAsteroid();
-        //     this.lastAsteroidSpawnTime = this.counter;
-        // }
+        if(this.counter >= this.lastAsteroidSpawnTime + ASTEROID_SPAWN_TIME) {
+            this.spawnAsteroid();
+            this.lastAsteroidSpawnTime = this.counter;
+        }
 
         this.continueActions();
 
@@ -151,7 +150,7 @@ export class Game {
     }
 
     checkAndSetGameOver() {
-        var shipVertices = this.ship.getVertices();
+        var shipVertices = this.ship.getCollisionVertices();
         for(var i = 0; i < this.asteroids.length; i++) {
             for(var j = 0; j < shipVertices.length; j++) {
                 if(shipVertices[j].distance(this.asteroids[i].cp) < this.asteroids[i].radius) {

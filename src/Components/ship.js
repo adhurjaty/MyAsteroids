@@ -5,7 +5,8 @@ const SHIP_WIDTH = 30,
       SHIP_LENGTH = 50,
       TURN_SPEED = .05,
       ACCEL = .05,
-      MAX_SPEED = 5;
+      MAX_SPEED = 5,
+      COLLISION_POINTS = 10;
 
 export class Ship extends GameObject {
     constructor() {
@@ -21,6 +22,17 @@ export class Ship extends GameObject {
                 new Point(this.cp.x - SHIP_LENGTH / 2 + 4, this.cp.y - SHIP_WIDTH / 2 + 4),
                 new Point(this.cp.x - SHIP_LENGTH / 2 + 4, this.cp.y + SHIP_WIDTH / 2 - 4),
                 new Point(this.cp.x - SHIP_LENGTH / 2, this.cp.y + SHIP_WIDTH / 2)];
+    }
+
+    getCollisionVertices() {
+        var vertices = this.getVertices();
+        var front = vertices[0];
+        var top = vertices[1];
+        var bottom = vertices[vertices.length - 1];
+
+        return front.linspace(top, COLLISION_POINTS)
+                    .concat(top.linspace(bottom, COLLISION_POINTS))
+                    .concat(bottom.linspace(front, COLLISION_POINTS));
     }
 
     getFront() {

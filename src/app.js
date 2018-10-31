@@ -54,11 +54,11 @@ window.onload = () => {
         context.fillStyle = 'rgb(255, 255, 255)';
         context.strokeStyle = 'rgb(255, 255, 255)';
 
-        // canvas.style.display = 'none';
-        // var pop = new Population(100);
-        // pop.train(1000, showProgress, trainingComplete);
+        canvas.style.display = 'none';
+        var pop = new Population(100);
+        pop.train(1000, showProgress, trainingComplete);
 
-        var game = new HumanGame(canvas);
-        game.start();
+        // var game = new HumanGame(canvas);
+        // game.start();
     }
 }

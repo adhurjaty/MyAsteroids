@@ -4,7 +4,7 @@ import { shuffle, randomInt } from "../util";
 const C1 = 0.2,
       C2 = 0.2,
       C3 = 0.4,
-      DISTANCE_THRESHOLD = 2.5;
+      DISTANCE_THRESHOLD = 2.0;
 
 export class Species {
     constructor(players, id) {
