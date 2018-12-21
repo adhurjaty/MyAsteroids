@@ -1,10 +1,10 @@
 import { INPUT_NEURONS, OUTPUT_NEURONS } from "./player";
 import { shuffle, randomInt } from "../util";
 
-const C1 = 0.2,
-      C2 = 0.2,
-      C3 = 0.4,
-      DISTANCE_THRESHOLD = 2.0;
+const C1 = 1.5,
+      C2 = 1.5,
+      C3 = 0.5,
+      DISTANCE_THRESHOLD = 3;
 
 export class Species {
     constructor(players, id) {

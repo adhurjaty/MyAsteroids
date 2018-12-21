@@ -155,6 +155,7 @@ export class Game {
             for(var j = 0; j < shipVertices.length; j++) {
                 if(shipVertices[j].distance(this.asteroids[i].cp) < this.asteroids[i].radius) {
                     this.gameOver = true;
+                    return;
                 }
             }
         }

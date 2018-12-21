@@ -4,7 +4,8 @@ import { AiTrainingGame } from "../GameTypes/aiTrainingGame";
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from "../app";
 import { arrayMax } from "../util";
 
-const STALE_THRESHOLD = 15;
+const STALE_THRESHOLD = 15,
+      SPECIES_TO_DISPLAY = 5;
 
 export class Population {
     static setInnovationNumber(connGene) {
@@ -157,8 +158,12 @@ export class Population {
     }
 
     reproduceSpecies(spec, num) {
+        // TODO: I think this is fucking everything up
+        // should probably clone the very best
+        
         var newSpeciesPlayers = [];
         for(var i = 0; i < num; i++) {
+
             var newSpeciesPlayer = spec.reproduce();
             if(newSpeciesPlayer != null) {
                 newSpeciesPlayers.push(newSpeciesPlayer);
@@ -205,10 +210,16 @@ export class Population {
             generation: generation,
             avg: avgFitness
         };
+        var playerSum = 0;
         for(var i = 0; i < this.species.length; i++) {
-            spec[this.species[i].id] = this.species[i].players.length;
-            fitnesses[this.species[i].id] = this.species[i].getAvgFitness();
+            var avgFitness = this.species[i].getAvgFitness();
+            if(i < SPECIES_TO_DISPLAY) {
+                spec[this.species[i].id] = this.species[i].players.length;
+                fitnesses[this.species[i].id] = avgFitness;
+                playerSum += this.species[i].players.length;
+            }
         }
+        spec['other'] = this.size - playerSum;
         this.speciation.push(spec);
         this.fitnessByGen.push(fitnesses);
     }

@@ -1,7 +1,7 @@
 import { GameObject } from "./gameObject";
 import { Point } from "./../util";
 
-const LIFETIME = 35,
+const LIFETIME = 25,
       RADIUS = 3,
       SPEED = 20
 

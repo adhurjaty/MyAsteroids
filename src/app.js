@@ -9,6 +9,9 @@ import { makeFintessChart } from './Graphing/fitnessChart';
 export const CANVAS_WIDTH = 1000,
              CANVAS_HEIGHT = 700;
 
+const POP_SIZE = 100,
+      GENERATIONS = 20;
+
 var canvas = null;
 
 function clearProgCharts() {
@@ -55,8 +58,8 @@ window.onload = () => {
         context.strokeStyle = 'rgb(255, 255, 255)';
 
         canvas.style.display = 'none';
-        var pop = new Population(100);
-        pop.train(1000, showProgress, trainingComplete);
+        var pop = new Population(POP_SIZE);
+        pop.train(GENERATIONS, showProgress, trainingComplete);
 
         // var game = new HumanGame(canvas);
         // game.start();
