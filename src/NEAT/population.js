@@ -3,9 +3,11 @@ import { Player } from "./player";
 import { AiTrainingGame } from "../GameTypes/aiTrainingGame";
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from "../app";
 import { arrayMax } from "../util";
+import seedrandom from 'seedrandom';
 
 const STALE_THRESHOLD = 15,
-      SPECIES_TO_DISPLAY = 5;
+      SPECIES_TO_DISPLAY = 5,
+      CLONE_BEST = 5;
 
 export class Population {
     static setInnovationNumber(connGene) {
@@ -31,6 +33,8 @@ export class Population {
 
     constructor(num) {
         this.size = num;
+        seedrandom('randomseed', {global: true});
+
         this.initPlayers();
         this.species = [new Species(this.players, 0)];
         this.specId = 1;
@@ -59,6 +63,7 @@ export class Population {
                 trainingComplete(this);
                 return;
             }
+
             this.runGeneration();
             if(i % progInterval == 0) {
                 this.updateGraphs(i);
@@ -74,10 +79,15 @@ export class Population {
 
     runGeneration() {
         var players = this.getAllPlayers();
+        var genSeed = Math.random();
         for(var i = 0; i < players.length; i++) {
             var player = players[i];
+
+            // ensure each game within a generation is the same by
+            // seeding with the same random seed
+            seedrandom('randomseed', {global: true});
             var game = new AiTrainingGame(CANVAS_WIDTH, CANVAS_HEIGHT, player);
-            game.start()
+            game.start();
         }
         this.updatePopulation();
     }
@@ -133,15 +143,27 @@ export class Population {
         var self = this;
         var avgFitnessSum = this.getAvgFitnessSum();
         var newSpeciesPlayers = [];
+
+        if(this.bestPlayer.fitness > this.species[0].bestPlayer.fitness) {
+            debugger;
+        }
+
         this.species.forEach((spec) => {
             var specPopSize = self.getSpeciesPopSize(spec, avgFitnessSum);
-            newSpeciesPlayers = newSpeciesPlayers.concat(self.reproduceSpecies(spec, specPopSize - spec.players.length));
+            var numOffspring = specPopSize - spec.players.length;
+            if(numOffspring < 0) {
+                spec.cullAmount(-numOffspring);
+            } else {
+                var mutants = self.reproduceSpecies(spec, numOffspring);
+                newSpeciesPlayers = newSpeciesPlayers.concat(mutants);
+            }
         });
 
         var curPop = this.getAllPlayers().length;
         var bestSpecies = this.species[0];
-        newSpeciesPlayers = newSpeciesPlayers.concat(
-            this.reproduceSpecies(bestSpecies, this.size - curPop));
+        var mutants = this.reproduceSpecies(bestSpecies,
+            this.size - curPop);
+        newSpeciesPlayers = newSpeciesPlayers.concat(mutants);
 
         this.speciate(newSpeciesPlayers);
     }
@@ -158,9 +180,6 @@ export class Population {
     }
 
     reproduceSpecies(spec, num) {
-        // TODO: I think this is fucking everything up
-        // should probably clone the very best
-        
         var newSpeciesPlayers = [];
         for(var i = 0; i < num; i++) {
 
@@ -213,13 +232,13 @@ export class Population {
         var playerSum = 0;
         for(var i = 0; i < this.species.length; i++) {
             var avgFitness = this.species[i].getAvgFitness();
-            if(i < SPECIES_TO_DISPLAY) {
+            // if(i < SPECIES_TO_DISPLAY) {
                 spec[this.species[i].id] = this.species[i].players.length;
                 fitnesses[this.species[i].id] = avgFitness;
-                playerSum += this.species[i].players.length;
-            }
+                // playerSum += this.species[i].players.length;
+            // }
         }
-        spec['other'] = this.size - playerSum;
+        // spec['other'] = this.size - playerSum;
         this.speciation.push(spec);
         this.fitnessByGen.push(fitnesses);
     }

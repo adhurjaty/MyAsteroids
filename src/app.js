@@ -5,6 +5,7 @@ import { Population } from './NEAT/population.js';
 import { graphNN } from './Graphing/networkVis.js';
 import { speciationChart } from './Graphing/speciationChart';
 import { makeFintessChart } from './Graphing/fitnessChart';
+import seedrandom from 'seedrandom';
 
 export const CANVAS_WIDTH = 1000,
              CANVAS_HEIGHT = 700;
@@ -42,6 +43,7 @@ function trainingComplete(population) {
     graphNN(nn, '#nn-visualizer');
     document.getElementById('nn-visualizer').style.display = 'block';
 
+    seedrandom('randomseed', {global: true});
     var game = new AiDisplayGame(canvas, player);
     game.start();
 }

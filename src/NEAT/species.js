@@ -4,7 +4,7 @@ import { shuffle, randomInt } from "../util";
 const C1 = 1.5,
       C2 = 1.5,
       C3 = 0.5,
-      DISTANCE_THRESHOLD = 3;
+      DISTANCE_THRESHOLD = 4;
 
 export class Species {
     constructor(players, id) {
@@ -106,6 +106,10 @@ export class Species {
 
     cull() {
         this.players = this.players.slice(0, Math.ceil(this.players.length/2));
+    }
+
+    cullAmount(amount) {
+        this.players = this.players.slice(0, this.players.length - amount);
     }
 
     setPlayers(players) {

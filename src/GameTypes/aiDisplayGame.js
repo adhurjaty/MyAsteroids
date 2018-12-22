@@ -2,24 +2,22 @@ import { DisplayGame } from "./displayGame";
 import { ACTION_THRESHOLD } from "../NEAT/player";
 
 
-const THOUGHT_INTERVAL = 200;   // milliseconds between each AI move
+const ACTION_INTERVAL = 15;   // milliseconds between each AI move
 
 export class AiDisplayGame extends DisplayGame {
     constructor(canvas, player) {
         super(canvas);
         this.player = player;
+        this.counter = 0;
     }
 
-    start() {
-        super.start();
+    update() {
+        this.counter++;
+        super.update();
 
-        var self = this;
-        this.thoughtHandle = setInterval(() => self.makeMove(), THOUGHT_INTERVAL);
-    }
-
-    endGame() {
-        super.endGame();
-        clearInterval(this.thoughtHandle);
+        if(this.counter % ACTION_INTERVAL == 0) {
+            this.makeMove();
+        }
     }
 
     makeMove() {
