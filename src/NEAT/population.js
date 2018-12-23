@@ -41,7 +41,6 @@ export class Population {
         this.initGlobalInnoHistory(this.players[0].brain);
         this.speciation = [];
         this.fitnessByGen = [];
-        this.bestPlayer = null;
     }
 
     initPlayers() {
@@ -85,7 +84,7 @@ export class Population {
 
             // ensure each game within a generation is the same by
             // seeding with the same random seed
-            seedrandom('randomseed', {global: true});
+            seedrandom('randomseed' + genSeed, {global: true});
             var game = new AiTrainingGame(CANVAS_WIDTH, CANVAS_HEIGHT, player);
             game.start();
         }
@@ -95,11 +94,6 @@ export class Population {
     updatePopulation() {
         this.writeSpeciesResults();
         this.sortSpecies();
-
-        if(this.bestPlayer == null ||
-            this.species[0].bestPlayer.fitness > this.bestPlayer.fitness) {
-            this.bestPlayer = this.species[0].bestPlayer;
-        }
 
         this.greatDying();
         this.reproduce();
@@ -143,10 +137,6 @@ export class Population {
         var self = this;
         var avgFitnessSum = this.getAvgFitnessSum();
         var newSpeciesPlayers = [];
-
-        if(this.bestPlayer.fitness > this.species[0].bestPlayer.fitness) {
-            debugger;
-        }
 
         this.species.forEach((spec) => {
             var specPopSize = self.getSpeciesPopSize(spec, avgFitnessSum);
@@ -231,10 +221,10 @@ export class Population {
         };
         var playerSum = 0;
         for(var i = 0; i < this.species.length; i++) {
-            var avgFitness = this.species[i].getAvgFitness();
+            var bestFitess = this.species[i].bestPlayer.fitness;
             // if(i < SPECIES_TO_DISPLAY) {
                 spec[this.species[i].id] = this.species[i].players.length;
-                fitnesses[this.species[i].id] = avgFitness;
+                fitnesses[this.species[i].id] = bestFitess;
                 // playerSum += this.species[i].players.length;
             // }
         }

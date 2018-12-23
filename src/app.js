@@ -10,8 +10,8 @@ import seedrandom from 'seedrandom';
 export const CANVAS_WIDTH = 1000,
              CANVAS_HEIGHT = 700;
 
-const POP_SIZE = 100,
-      GENERATIONS = 20;
+const POP_SIZE = 2000,
+      GENERATIONS = 60;
 
 var canvas = null;
 
@@ -43,7 +43,7 @@ function trainingComplete(population) {
     graphNN(nn, '#nn-visualizer');
     document.getElementById('nn-visualizer').style.display = 'block';
 
-    seedrandom('randomseed', {global: true});
+    // seedrandom('randomseed', {global: true});
     var game = new AiDisplayGame(canvas, player);
     game.start();
 }

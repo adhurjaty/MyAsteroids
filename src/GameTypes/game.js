@@ -7,7 +7,7 @@ import { GameObject } from "../Components/gameObject";
 export const PADDING = 50;
 const BULLET_COOLOFF = 15,    // game tick intervals
       SPAWN_DISTANCE = 120,
-      ASTEROID_SPAWN_TIME = 500,    // game tick intervals
+      ASTEROID_SPAWN_TIME = 1500,    // game tick intervals
       ASTEROID_HIT_SCORE = [5, 3, 1];
 
 export const MOVE_ENUM = Object.freeze({'UP': 0, 'DOWN': 1, 'LEFT': 2, 'RIGHT': 3, 'FIRE': 4});
