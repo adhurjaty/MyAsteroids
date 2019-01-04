@@ -4,7 +4,7 @@ import * as d3 from 'd3';
 import { CANVAS_WIDTH } from '../app'
 import { addEmptyChartItems } from '../util';
 
-const SVG_HEIGHT = 480;
+const SVG_HEIGHT = 360;
 
 export function makeFintessChart(dataset) {
 

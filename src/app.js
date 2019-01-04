@@ -10,8 +10,8 @@ import seedrandom from 'seedrandom';
 export const CANVAS_WIDTH = 1000,
              CANVAS_HEIGHT = 700;
 
-const POP_SIZE = 1000,
-      GENERATIONS = 30;
+const POP_SIZE = 500,
+      GENERATIONS = 60;
 
 var canvas = null;
 var debugButton = null;

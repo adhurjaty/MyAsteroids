@@ -4,11 +4,11 @@ import * as d3 from 'd3';
 import { CANVAS_WIDTH } from '../app'
 import { addEmptyChartItems } from '../util';
 
-const SVG_HEIGHT = 600;
+const SVG_HEIGHT = 400;
 
 export function speciationChart(data, chartSelector) {
     var margin = {top: 20, right: 20, bottom: 30, left: 50},
-        width = CANVAS_WIDTH - margin.left - margin.right,
+        width = CANVAS_WIDTH / 2 - margin.left - margin.right,
         height = SVG_HEIGHT - margin.top - margin.bottom;
 
     var x = d3.scale.linear().range([0, width]);

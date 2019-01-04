@@ -140,3 +140,8 @@ path.line {
     .chart-wrapper .line {stroke-width: 3px;}
     .chart-wrapper .legend {font-size: 14px;}
 }
+
+.container{
+    display: flex;
+    overflow: hidden;
+}

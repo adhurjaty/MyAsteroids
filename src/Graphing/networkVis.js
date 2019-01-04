@@ -1,11 +1,11 @@
 import * as d3 from 'd3';
 import { CANVAS_WIDTH } from '../app'
 
-const SVG_HEIGHT = 600,
+const SVG_HEIGHT = 400,
       NODE_SIZE = 10;
 
 export function graphNN(data, selector) {
-    var width = CANVAS_WIDTH,
+    var width = CANVAS_WIDTH / 2,
     height = SVG_HEIGHT,
     nodeSize = NODE_SIZE;
 
