@@ -10,8 +10,8 @@ import seedrandom from 'seedrandom';
 export const CANVAS_WIDTH = 1000,
              CANVAS_HEIGHT = 700;
 
-const POP_SIZE = 100,
-      GENERATIONS = 60;
+const POP_SIZE = 500,
+      GENERATIONS = 100;
 
 var canvas = null;
 var debugButton = null;
@@ -24,8 +24,8 @@ function showProgress(population) {
         var speciation = population.getSpeciation();
         speciationChart(speciation, '#speciation-chart');
         
-        var fitnesses = population.getFitnesses();
-        var fc = makeFintessChart(fitnesses);
+        var scores = population.getScores();
+        var fc = makeFintessChart(scores);
         fc.bind('#fitness-chart');
         fc.render();
 

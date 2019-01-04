@@ -12,6 +12,7 @@ export class Player {
                         ? brain
                         : new Genome(INPUT_NEURONS, OUTPUT_NEURONS);
         this.fitness = 0;
+        this.score = 0;
     }
 
     calculateMoves(state) {

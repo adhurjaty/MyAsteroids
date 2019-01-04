@@ -1,8 +1,6 @@
 import { DisplayGame } from "./displayGame";
 import { ACTION_THRESHOLD } from "../NEAT/player";
-
-
-const ACTION_INTERVAL = 5;   // game ticks between each AI move
+import { ACTION_INTERVAL } from "./aiTrainingGame";
 
 export class AiDisplayGame extends DisplayGame {
     constructor(canvas, player, debugGame) {

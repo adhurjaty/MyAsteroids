@@ -40,7 +40,7 @@ export class Population {
         this.specId = 1;
         this.initGlobalInnoHistory(this.players[0].brain);
         this.speciation = [];
-        this.fitnessByGen = [];
+        this.scoreByGen = [];
     }
 
     initPlayers() {
@@ -216,32 +216,29 @@ export class Population {
             generation: generation
         };
         var players = this.getAllPlayers();
-        var avgFitness = players.reduce((sum, x) => sum + x.fitness,
+        var avgScore = players.reduce((sum, x) => sum + x.score,
                         0) / players.length;
 
-        var fitnesses = {
+        var scores = {
             generation: generation,
-            avg: avgFitness
+            avg: avgScore
         };
         var playerSum = 0;
         for(var i = 0; i < this.species.length; i++) {
-            var bestFitess = this.species[i].bestPlayer.fitness;
-            // if(i < SPECIES_TO_DISPLAY) {
-                spec[this.species[i].id] = this.species[i].players.length;
-                fitnesses[this.species[i].id] = bestFitess;
-                // playerSum += this.species[i].players.length;
-            // }
+            // var bestFitess = this.species[i].bestPlayer.fitness;
+            var bestScore = Math.max(...this.species[i].players.map(x => x.score));
+            scores[this.species[i].id] = bestScore;
+            spec[this.species[i].id] = this.species[i].players.length;
         }
-        // spec['other'] = this.size - playerSum;
         this.speciation.push(spec);
-        this.fitnessByGen.push(fitnesses);
+        this.scoreByGen.push(scores);
     }
 
     getSpeciation() {
         return this.speciation;
     }
 
-    getFitnesses() {
-        return this.fitnessByGen;
+    getScores() {
+        return this.scoreByGen;
     }
 }

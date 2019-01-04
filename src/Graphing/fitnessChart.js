@@ -12,7 +12,7 @@ export function makeFintessChart(dataset) {
 
     var xName = 'generation',
     yObjs = {},
-    axisLables = {xAxis: 'Generations', yAxis: 'Fitness'};
+    axisLables = {xAxis: 'Generations', yAxis: 'Score'};
 
     for(var key in dataset[0]) {
         if(key == xName) {

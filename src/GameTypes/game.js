@@ -9,7 +9,8 @@ export const PADDING = 50;
 const BULLET_COOLOFF = 15,    // game tick intervals
       SPAWN_DISTANCE = 120,
       ASTEROID_SPAWN_TIME = 700,    // game tick intervals
-      ASTEROID_HIT_SCORE = [5, 3, 1];
+      ASTEROID_HIT_SCORE = [5, 3, 1],
+      SUPRISAL_COOLOFF = .1;
 
 export const MOVE_ENUM = Object.freeze({'UP': 0, 'DOWN': 1, 'LEFT': 2, 'RIGHT': 3, 'FIRE': 4});
 
@@ -36,6 +37,7 @@ export class Game {
         this.shotsHit = 0;
         this.sightVector = 0;
         this.maxDanger = 0;
+        this.suprisal = 1;
         this.counter = 0;
     }
 
@@ -217,6 +219,7 @@ export class Game {
         var vecCalc = new VectorCalculator(this.getState());
         this.sightVector = vecCalc.getVector();
 
+        var oldDanger = this.maxDanger;
         this.maxDanger = 0;
         for(var i = 0; i < 32; i += 2) {
 
@@ -225,5 +228,9 @@ export class Game {
                 this.maxDanger = danger;
             }
         }
+
+        var curSuprisal = this.maxDanger - oldDanger;
+        this.suprisal -= SUPRISAL_COOLOFF;
+        this.suprisal = Math.max(1, curSuprisal, this.suprisal);
     }
 }
