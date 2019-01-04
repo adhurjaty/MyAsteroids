@@ -2,11 +2,11 @@ import { DisplayGame } from "./displayGame";
 import { ACTION_THRESHOLD } from "../NEAT/player";
 
 
-const ACTION_INTERVAL = 15;   // milliseconds between each AI move
+const ACTION_INTERVAL = 5;   // game ticks between each AI move
 
 export class AiDisplayGame extends DisplayGame {
-    constructor(canvas, player) {
-        super(canvas);
+    constructor(canvas, player, debugGame) {
+        super(canvas, debugGame);
         this.player = player;
         this.counter = 0;
     }

@@ -7,10 +7,11 @@ import { CANVAS_WIDTH, CANVAS_HEIGHT } from "../app";
 const GAME_RATE_INTERVAL = 10;
 
 export class DisplayGame extends Game {
-    constructor(canvas) {
+    constructor(canvas, debugGame) {
         super(canvas.width, canvas.height);
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
+        this.debug = debugGame;
     }
 
     start() {
@@ -33,8 +34,9 @@ export class DisplayGame extends Game {
         this.drawAsteroids();
         this.drawScore();
 
-        // for debugging
-        // this.drawVision();
+        if(this.debug) {
+            this.drawVision();
+        }
     }
 
     drawShip() {

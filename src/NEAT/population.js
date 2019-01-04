@@ -84,7 +84,7 @@ export class Population {
 
             // ensure each game within a generation is the same by
             // seeding with the same random seed
-            seedrandom('randomseed' + genSeed, {global: true});
+            // seedrandom('randomseed' + genSeed, {global: true});
             var game = new AiTrainingGame(CANVAS_WIDTH, CANVAS_HEIGHT, player);
             game.start();
         }
@@ -201,6 +201,10 @@ export class Population {
     getBestPlayer() {
         return arrayMax(this.getAllPlayers(), (p) => p.fitness);
         // return this.bestPlayer;
+    }
+
+    getBestNPlayers(num) {
+        return this.species.slice(0, num).map(x => x.bestPlayer);
     }
 
     getAllPlayers() {

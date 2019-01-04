@@ -10,17 +10,13 @@ import seedrandom from 'seedrandom';
 export const CANVAS_WIDTH = 1000,
              CANVAS_HEIGHT = 700;
 
-const POP_SIZE = 2000,
-      GENERATIONS = 60;
+const POP_SIZE = 1000,
+      GENERATIONS = 30;
 
 var canvas = null;
-
-function clearProgCharts() {
-    ["speciation-chart", "fitness-chart"].forEach(c => {
-        var node = document.getElementById(c);
-        node.innerHTML = '';
-    });
-}
+var debugButton = null;
+var debugGame = false;
+var _game = null;
 
 function showProgress(population) {
     window.setTimeout(() => {
@@ -32,24 +28,80 @@ function showProgress(population) {
         var fc = makeFintessChart(fitnesses);
         fc.bind('#fitness-chart');
         fc.render();
+
+        var bestPlayer = population.getBestPlayer();
+        drawNN(bestPlayer);
     }, 0);
+}
+
+function clearProgCharts() {
+    ["nn-visualizer", "speciation-chart", "fitness-chart"].forEach(c => {
+        var node = document.getElementById(c);
+        node.innerHTML = '';
+    });
+}
+
+function drawNN(player) {
+    var nn = player.brain.toJson();
+    graphNN(nn, '#nn-visualizer');
+
+    document.getElementById('nn-visualizer').style.display = 'block';
 }
 
 function trainingComplete(population) {
     canvas.style.display = 'block';
+    debugButton.style.display = 'block';
     
-    var player = population.getBestPlayer();
-    var nn = player.brain.toJson();
-    graphNN(nn, '#nn-visualizer');
-    document.getElementById('nn-visualizer').style.display = 'block';
+    var bestPlayers = population.getBestNPlayers(5);
+    createPlayerButtons(bestPlayers);
+}
+
+function createPlayerButtons(players) {
+    var container = document.getElementById('button-holder');
+    container.innerHTML = '';
+    players.forEach((player, i) => {
+        var li = document.createElement('li');
+        var button = document.createElement('button');
+        button.onclick = ((player) => {
+            return () => startGame(player);
+        })(player);
+
+        var buttonContent = document.createTextNode(`Species ${i+1}`);
+        button.appendChild(buttonContent);
+        li.appendChild(button);
+        container.append(li);
+    });
+}
+
+function startGame(player) {
+    if(_game != null) {
+        _game.gameOver = true;
+    }
+
+    drawNN(player);
 
     // seedrandom('randomseed', {global: true});
-    var game = new AiDisplayGame(canvas, player);
-    game.start();
+    _game = new AiDisplayGame(canvas, player, debugGame);
+    _game.start();
+}
+
+function setDebugButton() {
+    debugButton = document.getElementById('debug-button');
+
+    debugButton.onclick = () => { 
+        debugGame = !debugGame;
+        if(_game != null) {
+            _game.debug = debugGame;
+        }
+    };
+
+    debugButton.style.display = 'none';
 }
 
 window.onload = () => {
     canvas = document.getElementById('game-canvas');
+    
+    setDebugButton();
 
     if(canvas.getContext) {
         canvas.setAttribute('width', CANVAS_WIDTH);
@@ -63,7 +115,7 @@ window.onload = () => {
         var pop = new Population(POP_SIZE);
         pop.train(GENERATIONS, showProgress, trainingComplete);
 
-        // var game = new HumanGame(canvas);
-        // game.start();
+        // _game = new HumanGame(canvas, debugGame);
+        // _game.start();
     }
 }

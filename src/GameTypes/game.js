@@ -7,7 +7,7 @@ import { GameObject } from "../Components/gameObject";
 export const PADDING = 50;
 const BULLET_COOLOFF = 15,    // game tick intervals
       SPAWN_DISTANCE = 120,
-      ASTEROID_SPAWN_TIME = 1500,    // game tick intervals
+      ASTEROID_SPAWN_TIME = 700,    // game tick intervals
       ASTEROID_HIT_SCORE = [5, 3, 1];
 
 export const MOVE_ENUM = Object.freeze({'UP': 0, 'DOWN': 1, 'LEFT': 2, 'RIGHT': 3, 'FIRE': 4});
@@ -31,6 +31,8 @@ export class Game {
         this.lastAsteroidSpawnTime = 0;
         this.gameOver = false;
         this.score = 0;
+        this.shotsFired = 0;
+        this.shotsHit = 0;
         this.counter = 0;
     }
 
@@ -41,6 +43,7 @@ export class Game {
             case MOVE_ENUM.FIRE:
                 if(this.canShoot()) {
                     this.fireBullet();
+                    this.shotsFired++;
                 }
                 break;
 
@@ -168,6 +171,7 @@ export class Game {
             var asteroidIdx = bulletAsteroidIdx[1];
             this.splitAsteroid(asteroidIdx);
             this.removeBullet(bulletIdx);
+            this.shotsHit++;
         }
     }
 
