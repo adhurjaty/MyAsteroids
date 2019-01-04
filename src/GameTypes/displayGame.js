@@ -114,10 +114,7 @@ export class DisplayGame extends Game {
     drawVision() {
         var canvasStart = this.convertToDrawCoords(this.ship.cp);
 
-        var vecCalc = new VectorCalculator(this.getState());
-        var vector = vecCalc.getVector();
-        var maxVel = .1;
-        var maxDanger = -Infinity;
+        var vector = this.sightVector;
 
         for(var i = 0; i < 16; i++) {
             var angle = i * Math.PI / 8;
@@ -127,10 +124,6 @@ export class DisplayGame extends Game {
             var canvasEnd = this.convertToDrawCoords(endpoint);
 
             if(vector[2*i] > 0) {
-                var danger = vector[2*i] * vector[2*i+1] * 1000;
-                if(danger > maxDanger) {
-                    maxDanger = danger;
-                }
                 this.ctx.lineWidth = 3;
             } else {
                 this.ctx.lineWidth = 1;
@@ -138,7 +131,7 @@ export class DisplayGame extends Game {
 
             this.drawVisionLine(canvasStart, canvasEnd);
         }
-        this.drawDanger(maxDanger);
+        this.drawDanger(this.maxDanger);
         this.ctx.lineWidth = 1;
     }
 

@@ -3,6 +3,7 @@ import { Point, piecewiseRandom } from "../util";
 import { Bullet } from "../Components/bullet";
 import { Asteroid } from "../Components/asteroid";
 import { GameObject } from "../Components/gameObject";
+import { VectorCalculator } from "../vectorCalculator";
 
 export const PADDING = 50;
 const BULLET_COOLOFF = 15,    // game tick intervals
@@ -33,6 +34,8 @@ export class Game {
         this.score = 0;
         this.shotsFired = 0;
         this.shotsHit = 0;
+        this.sightVector = 0;
+        this.maxDanger = 0;
         this.counter = 0;
     }
 
@@ -144,6 +147,8 @@ export class Game {
         this.handleBulletCollisions();
 
         this.checkAndSetGameOver();
+        
+        this.setSightVectorAndDanger();
     }
 
     continueActions() {
@@ -206,5 +211,19 @@ export class Game {
     fireBullet() {
         this.bullets.push(new Bullet(this.ship.getFront(), this.ship.theta));
         this.bulletFiredTime = this.counter;
+    }
+
+    setSightVectorAndDanger() {
+        var vecCalc = new VectorCalculator(this.getState());
+        this.sightVector = vecCalc.getVector();
+
+        this.maxDanger = 0;
+        for(var i = 0; i < 32; i += 2) {
+
+            var danger = this.sightVector[i] * this.sightVector[i+1] * 1000;
+            if(danger > this.maxDanger) {
+                this.maxDanger = danger;
+            }
+        }
     }
 }

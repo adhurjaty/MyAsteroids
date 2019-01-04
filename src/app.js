@@ -10,7 +10,7 @@ import seedrandom from 'seedrandom';
 export const CANVAS_WIDTH = 1000,
              CANVAS_HEIGHT = 700;
 
-const POP_SIZE = 500,
+const POP_SIZE = 100,
       GENERATIONS = 60;
 
 var canvas = null;
@@ -115,6 +115,7 @@ window.onload = () => {
         var pop = new Population(POP_SIZE);
         pop.train(GENERATIONS, showProgress, trainingComplete);
 
+        // debugButton.style.display = 'block';
         // _game = new HumanGame(canvas, debugGame);
         // _game.start();
     }

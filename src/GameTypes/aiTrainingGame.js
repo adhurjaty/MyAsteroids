@@ -39,10 +39,12 @@ export class AiTrainingGame extends Game {
     }
 
     getFitness() {
-        // return this.score ** 2 * SCORE_GAIN + this.counter * LIFETIME_FITNESS_GAIN;
-        var hitRate = this.shotsFired > 0 
-            ? this.shotsHit / this.shotsFired
-            : 0;
-        return (this.score + 1) * this.counter / 100 * hitRate ** 2;
+        return this.score ** 2 * SCORE_GAIN + this.counter * LIFETIME_FITNESS_GAIN;
+        // var minHitRate = .02;
+        // var hitRate = this.shotsFired > 0 
+        //     ? this.shotsHit / this.shotsFired
+        //     : minHitRate;
+        // hitRate = Math.max(minHitRate, hitRate)
+        // return (this.score + 1) ** 2 * this.counter * Math.sqrt(hitRate) / 100;
     }
 }
